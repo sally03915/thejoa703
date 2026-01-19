@@ -1,0 +1,284 @@
+// // ✅ 변경: 필요한 라이브러리와 액션 import
+// import { useEffect, useState } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+// import {
+//   Card, List, Spin, Alert, Carousel, Image, Button,
+//   Modal, Form, Input, Upload, Select, Row, Col, Divider,
+// } from "antd";
+// import {
+//   fetchPostsRequest, deletePostRequest, updatePostRequest,
+// } from "../../reducers/postReducer";
+// import {
+//   addLikeRequest, removeLikeRequest, countLikesRequest, // ✅ 변경: 좋아요 관련 액션 추가
+// } from "../../reducers/likeReducer";
+
+// import Link from "next/link";
+
+// import {
+//   LikeOutlined,
+//   RetweetOutlined,
+//   CommentOutlined,
+//   EditOutlined,
+//   DeleteOutlined,
+// } from "@ant-design/icons";
+
+// export default function PostListPage() {
+//   const dispatch = useDispatch();
+//   const { posts, loading, error } = useSelector((state) => state.post);
+//   const { user } = useSelector((state) => state.auth);
+//   const { likesCount } = useSelector((state) => state.like);
+
+//   const [expandedPostId, setExpandedPostId] = useState(null);
+//   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+//   const [editPost, setEditPost] = useState(null);
+//   const [uploadFiles, setUploadFiles] = useState([]);
+//   const [likedPosts, setLikedPosts] = useState({});
+//   const [localLikes, setLocalLikes] = useState({}); // ✅ 변경: 프론트에서 즉시 반영할 갯수 상태
+
+//   useEffect(() => {
+//     dispatch(fetchPostsRequest());
+//   }, [dispatch]);
+
+//   useEffect(() => {
+//     posts.forEach((post) => {
+//       // 서버에서 가져온 likesCount를 localLikes에 반영
+//       setLocalLikes((prev) => ({ ...prev, [post.id]: likesCount[post.id] || 0 }));
+//     });
+//   }, [posts, likesCount]);
+
+//   if (loading) return <Spin tip="글 목록을 불러오는 중..." />;
+//   if (error)
+//     return <Alert type="error" message="글 목록 불러오기 실패" description={error} />;
+
+//   const sortedPosts = [...posts].sort(
+//     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//   );
+
+//   const handleEdit = (post) => {
+//     setEditPost(post);
+//     setIsEditModalVisible(true);
+//     setUploadFiles([]);
+//   };
+
+//   const handleEditSubmit = (values) => {
+//     dispatch(updatePostRequest({
+//       postId: editPost.id,
+//       dto: {
+//         content: values.content,
+//         hashtags: Array.isArray(values.hashtags)
+//           ? values.hashtags.join(",")
+//           : values.hashtags,
+//       },
+//       files: uploadFiles,
+//     }));
+//     setIsEditModalVisible(false);
+//     setEditPost(null);
+//   };
+
+//   // ✅ 변경: 좋아요 토글 시 즉시 반영 + 서버 동기화
+//   const handleToggleLike = (postId) => {
+//     if (!user) return;
+
+//     if (likedPosts[postId]) {
+//       // 취소 → 즉시 감소
+//       setLikedPosts((prev) => ({ ...prev, [postId]: false }));
+//       setLocalLikes((prev) => ({
+//         ...prev,
+//         [postId]: Math.max((prev[postId] || 1) - 1, 0), // 음수 방지
+//       }));
+//       dispatch(removeLikeRequest({ userId: user.id, postId }));
+//     } else {
+//       // 좋아요 → 즉시 증가
+//       setLikedPosts((prev) => ({ ...prev, [postId]: true }));
+//       setLocalLikes((prev) => ({
+//         ...prev,
+//         [postId]: (prev[postId] || 0) + 1,
+//       }));
+//       dispatch(addLikeRequest({ userId: user.id, dto: { postId } }));
+//     }
+
+//     // ✅ 서버 값으로 최종 동기화
+//     dispatch(countLikesRequest({ postId }));
+//   };
+
+//   return (
+//     <div style={{ minHeight: "100vh", padding: "30px 0",
+//       background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)" }}>
+//       <Card title="피드" style={{
+//         maxWidth: 700, margin: "0 auto", borderRadius: "12px",
+//         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+//         backgroundColor: "rgba(255,255,255,0.9)",
+//       }}>
+//         <List
+//           itemLayout="vertical"
+//           dataSource={sortedPosts}
+//           renderItem={(post) => (
+//             <Card key={post.id} style={{
+//               marginBottom: "30px", borderRadius: "12px",
+//               boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+//               background: "linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%)",
+//             }}>
+//               <List.Item>
+//                 {post.imageUrls && post.imageUrls.length > 0 && (
+//                   <Carousel dots draggable style={{ marginBottom: "15px" }}>
+//                     {post.imageUrls.map((img, idx) => (
+//                       <div key={idx} style={{ textAlign: "center" }}>
+//                         <Image
+//                           src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${img}`}
+//                           alt={`post image ${idx}`}
+//                           style={{ maxWidth: "100%", borderRadius: "12px", objectFit: "cover" }}
+//                         />
+//                       </div>
+//                     ))}
+//                   </Carousel>
+//                 )}
+
+//                 <List.Item.Meta
+//                   title={
+//                     <strong style={{ fontSize: "16px", whiteSpace: "pre-line" }}>
+//                       {post.content}
+//                     </strong>
+//                   }
+//                   description={
+//                     <>
+//                       <div style={{ color: "#888", fontSize: "12px" }}>
+//                         작성일: {new Date(post.createdAt).toLocaleString()}
+//                       </div>
+//                       {post.hashtags && <div style={{ color: "#555", fontSize: "13px" }}>해시태그: {post.hashtags}</div>}
+//                       <div style={{ color: "#555", fontSize: "12px" }}>작성자: {post.authorNickname}</div>
+//                     </>
+//                   }
+//                 />
+//                 <Row justify="space-around" style={{ marginTop: "10px", textAlign: "center", borderTop: "1px solid #eee", paddingTop: "12px" }}>
+//                   <Col style={{ borderRight: "1px solid #eee", flex: 1, padding: "8px" }}>
+//                     {user ? (
+//                       <div
+//                         onClick={() => handleToggleLike(post.id)}
+//                         style={{ cursor: "pointer", transition: "0.3s" }}
+//                       >
+//                         <LikeOutlined style={{ fontSize: "20px", color: likedPosts[post.id] ? "#1890ff" : "#555" }} />
+//                         <div style={{ fontSize: "12px" }}>
+//                           {likedPosts[post.id] ? "좋아요 취소" : "좋아요"} {localLikes[post.id] || 0}
+//                         </div>
+//                       </div>
+//                     ) : ( 
+
+//                       <Col style={{ flex: 1, padding: "8px" }}>
+//                         <Button
+//                           type="link"
+//                           onClick={() => window.location.href = "/login"} // ✅ 로그인 페이지로 이동
+//                           style={{ fontSize: "12px", color: "#1890ff" }}
+//                         >
+//                           로그인 후<br/>좋아요 가능
+//                         </Button>
+//                       </Col>
+
+
+//                     )}
+//                   </Col>
+
+//                   <Col style={{ borderRight: "1px solid #eee", flex: 1, padding: "8px" }}>
+//                     <div style={{ cursor: "pointer", transition: "0.3s" }}>
+//                       <RetweetOutlined style={{ fontSize: "20px", color: "#555" }} />
+//                       <div style={{ fontSize: "12px" }}>리트윗</div>
+//                     </div>
+//                   </Col>
+
+//                   <Col style={{ borderRight: "1px solid #eee", flex: 1, padding: "8px" }}>
+//                     <div
+//                       onClick={() => setExpandedPostId(expandedPostId === post.id ? null : post.id)}
+//                       style={{ cursor: "pointer", transition: "0.3s" }}
+//                     >
+//                       <CommentOutlined style={{ fontSize: "20px", color: "#555" }} />
+//                       <div style={{ fontSize: "12px" }}>댓글</div>
+//                     </div>
+//                   </Col>
+
+//                   {user?.nickname?.trim().toLowerCase() === post.authorNickname?.trim().toLowerCase() && (
+//                     <>
+//                       <Col style={{ borderRight: "1px solid #eee", flex: 1, padding: "8px" }}>
+//                         <div
+//                           onClick={() => handleEdit(post)}
+//                           style={{ cursor: "pointer", transition: "0.3s" }}
+//                         > 
+//                                                   <EditOutlined style={{ fontSize: "20px", color: "#555" }} />
+//                           <div style={{ fontSize: "12px" }}>수정</div>
+//                         </div>
+//                       </Col>
+//                       <Col style={{ flex: 1, padding: "8px" }}>
+//                         <div
+//                           onClick={() => dispatch(deletePostRequest({ postId: post.id }))}
+//                           style={{ cursor: "pointer", transition: "0.3s" }}
+//                           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#ffecec"}
+//                           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+//                         >
+//                           <DeleteOutlined style={{ fontSize: "20px", color: "red" }} />
+//                           <div style={{ fontSize: "12px" }}>삭제</div>
+//                         </div>
+//                       </Col>
+//                     </>
+//                   )}
+//                 </Row>
+
+//                 {expandedPostId === post.id && (
+//                   <div style={{ marginTop: "15px", padding: "10px",
+//                     backgroundColor: "#fafafa", borderRadius: "6px" }}>
+//                     <strong>댓글</strong>
+//                     <ul style={{ marginTop: "8px" }}>
+//                       {(post.comments || []).map((c, i) => (
+//                         <li key={i}>{c}</li>
+//                       ))}
+//                     </ul>
+//                   </div>
+//                 )}
+//               </List.Item>
+//             </Card>
+//           )}
+//         />
+
+//         {/* ✅ 글 수정 모달 */}
+//         <Modal
+//           title="글 수정"
+//           open={isEditModalVisible}
+//           onCancel={() => setIsEditModalVisible(false)}
+//           footer={null}
+//         >
+//           <Form
+//             initialValues={{
+//               content: editPost?.content,
+//               hashtags: Array.isArray(editPost?.hashtags)
+//                 ? editPost.hashtags
+//                 : editPost?.hashtags
+//                 ? editPost.hashtags.split(",")
+//                 : [],
+//             }}
+//             onFinish={handleEditSubmit}
+//             layout="vertical"
+//           >
+//             <Form.Item name="content" label="내용">
+//               <Input.TextArea rows={4} />
+//             </Form.Item>
+
+//             <Form.Item name="hashtags" label="해시태그">
+//               <Select mode="tags" style={{ width: "100%" }} placeholder="해시태그 입력" />
+//             </Form.Item>
+
+//             <Form.Item label="이미지 업로드">
+//               <Upload
+//                 multiple
+//                 beforeUpload={() => false}
+//                 onChange={({ fileList }) =>
+//                   setUploadFiles(fileList.map((f) => f.originFileObj))
+//                 }
+//               >
+//                 <Button>이미지 선택</Button>
+//               </Upload>
+//             </Form.Item>
+
+//             <Button type="primary" htmlType="submit">수정 완료</Button>
+//           </Form>
+//         </Modal>
+//       </Card>
+//     </div>
+//   );
+// }

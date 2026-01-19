@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- ✅ 전역 설정 (settings 먼저) -->
+    <settings>
+        <!-- DB 컬럼명 → camelCase 자동 매핑 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!-- 캐시 사용 여부 -->
+        <setting name="cacheEnabled" value="false"/>
+        <!-- 기본 fetch size -->
+        <setting name="defaultFetchSize" value="100"/>
+        <!-- 기본 statement timeout (초 단위) -->
+        <setting name="defaultStatementTimeout" value="30"/>
+    </settings>
+
+    <!-- ✅ Type Alias 등록 (settings 다음에 위치해야 함) -->
+    <typeAliases>
+        <typeAlias alias="DeptUser" type="com.thejoa703.domain.DeptUser"/>
+    </typeAliases>
+
+</configuration>
