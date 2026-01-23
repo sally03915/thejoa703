@@ -8,20 +8,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
-    @Value("${file.upload-dir}")   // application.yml에서 불러오기
+	// applcation.yml 에서 업로드된 경로 불러오기
+    @Value("${file.upload-dir}")    
     private String uploadDir;
-
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // /uploads/** 요청을 실제 uploads 디렉토리와 매핑
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadDir + "/");
+    public void addResourceHandlers(ResourceHandlerRegistry registry) { 
+        registry.addResourceHandler("/uploads/**")    //   /uploads/** 요청을 
+                .addResourceLocations("file:" + uploadDir + "/");  // 실제 uploads 폴더와 매핑
     }
-
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        // 모든 경로에 대해 CORS 허용
+    public void addCorsMappings(CorsRegistry registry) { 
+    		// 모든 경로에서 CORS 허용
         registry.addMapping("/**")
                 .allowedOrigins("*") // 필요 시 특정 도메인으로 제한 가능
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")

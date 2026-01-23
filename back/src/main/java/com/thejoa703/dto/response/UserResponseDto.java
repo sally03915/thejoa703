@@ -46,7 +46,7 @@ public class UserResponseDto {
                 .ufile(user.getUfile())
                 .build();
     }
-
+ 
     /**
      * ✅ DTO → 엔티티 변환
      * - 테스트나 특정 매핑 시 필요할 수 있어 제공

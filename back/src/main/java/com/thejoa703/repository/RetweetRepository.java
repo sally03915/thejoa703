@@ -11,14 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.thejoa703.entity.Post;
 import com.thejoa703.entity.Retweet;
-
-/**
- * ✅ RetweetRepository
- * - 특정 유저의 특정 게시글 리트윗 조회
- * - 중복 리트윗 방지 (count 기반)
- * - 리트윗 취소
- * - 특정 게시글의 리트윗 수 집계
- */
+ 
 public interface RetweetRepository extends JpaRepository<Retweet, Long> {
 
     // 특정 유저의 특정 게시글 리트윗 조회 (JPQL로 직접 작성 → Oracle 11g 호환)

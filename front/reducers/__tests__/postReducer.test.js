@@ -9,11 +9,10 @@ import reducer, {
   deletePostRequest, deletePostSuccess, deletePostFailure,
 } from '../postReducer';
 
-describe('post reducer', () => {
-  // ✅ 변경: likedPosts도 포함
+describe('post reducer', () => { 
   const initialState = { 
     posts: [], 
-    likedPosts: [],   // ✅ 추가
+    likedPosts: [],    
     currentPost: null, 
     myAndRetweets: [], 
     loading: false, 
@@ -48,8 +47,7 @@ describe('post reducer', () => {
     expect(state.error).toBe('fail');
     expect(state.currentPost).toBeNull();
   });
-
-  // ✅ 페이징 조회 테스트
+ 
   it('handles fetchPostsPagedSuccess', () => {
     const posts = [{ id: 10 }, { id: 11 }];
     const state = reducer(initialState, fetchPostsPagedSuccess(posts));
@@ -60,20 +58,18 @@ describe('post reducer', () => {
     const state = reducer(initialState, fetchPostsPagedFailure('fail'));
     expect(state.error).toBe('fail');
   });
-
-  // ✅ 좋아요 조회 테스트
+ 
   it('handles fetchLikedPostsSuccess', () => {
     const posts = [{ id: 20 }, { id: 21 }];
     const state = reducer(initialState, fetchLikedPostsSuccess(posts));
-    expect(state.likedPosts).toEqual(posts); // ✅ 변경: likedPosts 확인
+    expect(state.likedPosts).toEqual(posts);  
   });
 
   it('handles fetchLikedPostsFailure', () => {
     const state = reducer(initialState, fetchLikedPostsFailure('fail'));
     expect(state.error).toBe('fail');
   });
-
-  // ✅ 내가 쓴 글 + 리트윗 글 조회 테스트
+ 
   it('handles fetchMyAndRetweetsSuccess', () => {
     const posts = [{ id: 30 }, { id: 31 }];
     const state = reducer(initialState, fetchMyAndRetweetsSuccess(posts));
@@ -84,8 +80,7 @@ describe('post reducer', () => {
     const state = reducer(initialState, fetchMyAndRetweetsFailure('fail'));
     expect(state.error).toBe('fail');
   });
-
-  // ✅ 생성 테스트
+ 
   it('handles createPostSuccess', () => {
     const post = { id: 2 };
     const state = reducer(initialState, createPostSuccess(post));
@@ -96,8 +91,7 @@ describe('post reducer', () => {
     const state = reducer(initialState, createPostFailure('fail'));
     expect(state.error).toBe('fail');
   });
-
-  // ✅ 수정 테스트
+ 
   it('handles updatePostSuccess', () => {
     const prev = { ...initialState, posts: [{ id: 1, title: 'old' }], currentPost: { id: 1, title: 'old' } };
     const updated = { id: 1, title: 'new' };
@@ -110,8 +104,7 @@ describe('post reducer', () => {
     const state = reducer(initialState, updatePostFailure('fail'));
     expect(state.error).toBe('fail');
   });
-
-  // ✅ 삭제 테스트
+ 
   it('handles deletePostRequest', () => {
     const state = reducer(initialState, deletePostRequest());
     expect(state.loading).toBe(true);

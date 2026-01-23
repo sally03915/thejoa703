@@ -1,6 +1,4 @@
-// ✅ redux-saga의 call, put, takeLatest를 사용하여 비동기 API 호출 관리
 import { call, put, takeLatest } from 'redux-saga/effects';
-// ✅ axios 인스턴스 (withCredentials: true 설정, Refresh Token 자동 처리)
 import axios from '../api/axios';
 
 import {
@@ -8,17 +6,15 @@ import {
   fetchPostRequest, fetchPostSuccess, fetchPostFailure,
   fetchPostsPagedRequest, fetchPostsPagedSuccess, fetchPostsPagedFailure,
   fetchLikedPostsRequest, fetchLikedPostsSuccess, fetchLikedPostsFailure,
-  fetchMyAndRetweetsRequest, fetchMyAndRetweetsSuccess, fetchMyAndRetweetsFailure, // ✅ 변경
+  fetchMyAndRetweetsRequest, fetchMyAndRetweetsSuccess, fetchMyAndRetweetsFailure, 
   createPostRequest, createPostSuccess, createPostFailure,
   updatePostRequest, updatePostSuccess, updatePostFailure,
   deletePostRequest, deletePostSuccess, deletePostFailure,
 } from '../reducers/postReducer';
 
-/**
- * ✅ 전체 게시글 조회 (GET /api/posts)
- */
+// 전체게시글
 export function* fetchPosts() {
-  try {
+  try {                               //localhost:8484/api/posts
     const { data } = yield call(() => axios.get('/api/posts'));
     yield put(fetchPostsSuccess(data));
   } catch (err) {
@@ -26,9 +22,7 @@ export function* fetchPosts() {
   }
 }
 
-/**
- * ✅ 단건 게시글 조회 (GET /api/posts/{postId})
- */
+// 단건게시글
 export function* fetchPost(action) {
   try {
     const { data } = yield call(() => axios.get(`/api/posts/${action.payload.postId}`));
@@ -38,10 +32,7 @@ export function* fetchPost(action) {
   }
 }
 
-/**
- * ✅ 전체 게시글 페이징 조회 (GET /api/posts/paged?page&size)
- * - 응답 데이터는 리듀서에서 append + 중복 제거 + 최신순 정렬 처리
- */
+// 전체게시글 페이징조회
 export function* fetchPostsPaged(action) {
   try {
     const { page, size } = action.payload;
@@ -52,9 +43,7 @@ export function* fetchPostsPaged(action) {
   }
 }
 
-/**
- * ✅ 좋아요한 게시글 페이징 조회 (GET /api/posts/liked?page&size, JWT 필요)
- */
+// 좋아요한 게시글
 export function* fetchLikedPosts(action) {
   try {
     const { page, size } = action.payload;
@@ -64,10 +53,7 @@ export function* fetchLikedPosts(action) {
     yield put(fetchLikedPostsFailure(err.response?.data?.message || err.message));
   }
 }
-
-/**
- * ✅ 내가 쓴 글 + 내가 리트윗한 글 페이징 조회 (GET /api/posts/myPostRetweets/paged?page&size, JWT 필요)
- */
+// 내가 쓴글 + 리트윗한 글
 export function* fetchMyAndRetweets(action) { // ✅ 변경
   try {
     const { page, size } = action.payload;
@@ -79,10 +65,7 @@ export function* fetchMyAndRetweets(action) { // ✅ 변경
     yield put(fetchMyAndRetweetsFailure(err.response?.data?.message || err.message));
   }
 }
-
-/**
- * ✅ 글 작성 (POST /api/posts, multipart/form-data, JWT 필요)
- */
+// 글쓰기
 export function* createPost(action) {
   try {
     const { dto, files } = action.payload;
@@ -100,10 +83,7 @@ export function* createPost(action) {
     yield put(createPostFailure(err.response?.data?.message || err.message));
   }
 }
-
-/**
- * ✅ 글 수정 (PUT /api/posts/{postId}, multipart/form-data, JWT 필요)
- */
+// 수정
 export function* updatePost(action) {
   try {
     const { postId, dto, files } = action.payload;
@@ -125,10 +105,7 @@ export function* updatePost(action) {
     yield put(updatePostFailure(err.response?.data?.message || err.message));
   }
 }
-
-/**
- * ✅ 글 삭제 (DELETE /api/posts/{postId}, JWT 필요)
- */
+// 삭제
 export function* deletePost(action) {
   try {
     yield call(() => axios.delete(`/api/posts/${action.payload.postId}`));
@@ -138,9 +115,7 @@ export function* deletePost(action) {
   }
 }
 
-/**
- * ✅ root saga: 모든 액션을 takeLatest로 연결
- */
+
 export default function* postSaga() {
   yield takeLatest(fetchPostsRequest.type, fetchPosts);
   yield takeLatest(fetchPostRequest.type, fetchPost);

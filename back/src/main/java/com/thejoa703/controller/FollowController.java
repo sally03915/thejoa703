@@ -73,20 +73,5 @@ public class FollowController {
         return ResponseEntity.ok().body(followeeId);
     }
 
-    @PatchMapping("/block")
-    public ResponseEntity<?> updateBlock(Authentication authentication,
-                                         @Valid @RequestBody BlockRequestDto dto) {
-        try {
-            Long currentUserId = authUserJwtService.getCurrentUserId(authentication);
-            if (Boolean.TRUE.equals(dto.getBlocked())) {
-                followService.block(currentUserId, dto.getTargetUserId());
-                return ResponseEntity.ok(new BlockResponseDto(currentUserId, dto.getTargetUserId(), true));
-            } else {
-                followService.unblock(currentUserId, dto.getTargetUserId());
-                return ResponseEntity.ok(new BlockResponseDto(currentUserId, dto.getTargetUserId(), false));
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
+ 
 }

@@ -1,7 +1,7 @@
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.3.5'   // ✅ 최신 안정 버전 사용
-    id 'io.spring.dependency-management' version '1.1.7'
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.thejoa703'
@@ -9,62 +9,69 @@ version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17) // ✅ Spring Boot 3.x 호환
-    }
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
-    // ✅ Spring Boot 기본 스타터
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'  // MyBatis 추가
-
-    // 🔐 Security / Redis
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // ✅ 소셜 로그인용
-
-    // Lombok (컴파일 시만 필요)
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+	// 기본스타터
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3' 
+	
+	// 보안 + redis + oauth2.0
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis' 
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	
+	// lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-
-    // JWT (API + 구현체 + Jackson 직렬화)
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	
+	// JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
+	
     // Swagger/OpenAPI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-    // ✅ 소셜 로그인 테스트까지 Swagger에서 하려면 아래 추가 가능
-    //implementation 'org.springdoc:springdoc-openapi-starter-oauth2:2.5.0'
-
-    // Oracle JDBC Driver (JDK 11+ 호환)
-    runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
-
-    // Gson (JSON 직렬화/역직렬화 보조)
+    //implementation 'org.springdoc:springdoc-openapi-starter-oauth2:2.5.0'	
+	
+	// oracle 
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+	 
+    // Gson
     implementation 'com.google.code.gson:gson:2.11.0'
-
-    // 테스트 의존성
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    
+    // dotenv
+    implementation 'me.paulschwarz:spring-dotenv:3.0.0'	 
+	 
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+	useJUnitPlatform()
 }
-
-// 🔑 Swagger에서 메서드 파라미터 이름 유지 (예: @RequestParam 이름 그대로 표시)
+// Swagger에서 파라미터 이름 유지
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs.add("-parameters")
 }
- 
+
+

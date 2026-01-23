@@ -21,7 +21,7 @@ public class LoginRequest {
     private String email;
 
     @NotBlank
-    private String password; // 평문 입력 → 서비스에서 BCrypt matches로 검증
+    private String password; // 평문 입력 → 서비스에서 BCrypt matches로 검증   pass123
 
     private String provider; // "local"
 }

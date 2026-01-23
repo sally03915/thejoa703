@@ -1,9 +1,7 @@
-// ✅ React 훅과 Redux 훅 import
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Input, Button, List } from "antd";
 
-// ✅ reducer 액션 import
 import {
   fetchCommentsRequest,
   createCommentRequest,
@@ -12,42 +10,44 @@ import {
 } from "../reducers/commentReducer";
 
 export default function CommentSection({ postId, user }) {
+  //1. store
   const dispatch = useDispatch();
 
-  // ✅ 변경: postId별 댓글 가져오기
   const comments = useSelector((state) => state.comment.comments[postId] || []);
   const loading = useSelector((state) => state.comment.loading);
 
-  // ✅ 로컬 상태 관리
-  const [newContent, setNewContent] = useState(""); // 새 댓글 입력 상태
-  const [editId, setEditId] = useState(null);       // 수정 중인 댓글 ID
-  const [editContent, setEditContent] = useState(""); // 수정 중인 댓글 내용
+  //2. useState 변수
+  const [newContent, setNewContent] = useState("");  
+  const [editId, setEditId] = useState(null);       
+  const [editContent, setEditContent] = useState(""); 
 
-  // ✅ 댓글 조회 (컴포넌트 마운트 시 실행)
+  //3. event
+  /// 댓글들 불러오기 - read
   useEffect(() => {
-    dispatch(fetchCommentsRequest({ postId })); // ✅ 변경: postId 포함
+    dispatch(fetchCommentsRequest({ postId }));  
   }, [dispatch, postId]);
 
-  // ✅ 댓글 작성
+ 
+  /// 댓글달기 - create
   const handleCreate = () => {
     if (!newContent.trim()) return;
-    dispatch(createCommentRequest({ postId, dto: { content: newContent } })); // ✅ 변경
+    dispatch(createCommentRequest({ postId, dto: { content: newContent } }));  
     setNewContent("");
   };
 
-  // ✅ 댓글 수정
+
+  /// 댓글들 불러오기 - update
   const handleUpdate = (commentId) => {
     if (!editContent.trim()) return;
-    dispatch(updateCommentRequest({ postId, commentId, dto: { content: editContent } })); // ✅ 변경
+    dispatch(updateCommentRequest({ postId, commentId, dto: { content: editContent } }));  
     setEditId(null);
     setEditContent("");
   };
-
-  // ✅ 댓글 삭제
+  /// 댓글삭제 - delete
   const handleDelete = (commentId) => {
-    dispatch(deleteCommentRequest({ postId, commentId })); // ✅ 변경
+    dispatch(deleteCommentRequest({ postId, commentId }));  
   };
-
+///////////////////////////// 화면단
   return (
     <div
       style={{
@@ -58,8 +58,7 @@ export default function CommentSection({ postId, user }) {
       }}
     >
       <strong>댓글</strong>
-
-      {/* ✅ 댓글 작성 입력창 */}
+      {/*  댓글 작성 입력창   */}
       {user && (
         <div style={{ marginTop: "10px" }}>
           <Input.TextArea
@@ -74,7 +73,8 @@ export default function CommentSection({ postId, user }) {
         </div>
       )}
 
-      {/* ✅ 댓글 목록 */}
+
+      {/*  댓글 목록   */}
       <List
         style={{ marginTop: "10px" }}
         loading={loading}
@@ -101,7 +101,7 @@ export default function CommentSection({ postId, user }) {
                 : []
             }
           >
-            {/* ✅ 수정 모드일 때와 일반 모드 구분 */}
+            {/*  수정모드 일때와 일반모드 구분 */}
             {editId === c.id ? (
               <Input.TextArea
                 rows={2}

@@ -2,16 +2,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  likes: {},        // postId별 내가 좋아요 했는지 여부 (true/false)
-  likesCount: {},   // postId별 좋아요 수
+  likes: {},        
+  likesCount: {},   
   loading: false,
   error: null,
 };
 
-const likeSlice = createSlice({   // ✅ 변수명 수정
+const likeSlice = createSlice({   
   name: "like",
   initialState,
   reducers: {
+    // 좋아요누르기
     addLikeRequest: (state) => { state.loading = true; state.error = null; },
     addLikeSuccess: (state, action) => {
       state.loading = false;
@@ -23,7 +24,7 @@ const likeSlice = createSlice({   // ✅ 변수명 수정
       state.loading = false;
       state.error = action.payload;
     },
-
+    // 좋아요삭제
     removeLikeRequest: (state) => { state.loading = true; state.error = null; },
     removeLikeSuccess: (state, action) => {
       state.loading = false;
@@ -35,7 +36,7 @@ const likeSlice = createSlice({   // ✅ 변수명 수정
       state.loading = false;
       state.error = action.payload;
     },
-
+    // 좋아요 수
     countLikesRequest: (state) => { state.loading = true; state.error = null; },
     countLikesSuccess: (state, action) => {
       state.loading = false;
@@ -46,11 +47,11 @@ const likeSlice = createSlice({   // ✅ 변수명 수정
       state.loading = false;
       state.error = action.payload;
     },
-
+    // 내가 좋아요
     fetchMyLikesRequest: (state) => { state.loading = true; state.error = null; },
     fetchMyLikesSuccess: (state, action) => {
       state.loading = false;
-      const likedPosts = action.payload; // 서버에서 [1,2,3,...] 반환
+      const likedPosts = action.payload;  
       const likesObj = {};
       likedPosts.forEach(id => { likesObj[id] = true; });
       state.likes = { ...state.likes, ...likesObj };
@@ -61,14 +62,12 @@ const likeSlice = createSlice({   // ✅ 변수명 수정
     },
   },
 });
-
-// ✅ 액션 export
+ 
 export const {
   addLikeRequest, addLikeSuccess, addLikeFailure,
   removeLikeRequest, removeLikeSuccess, removeLikeFailure,
   countLikesRequest, countLikesSuccess, countLikesFailure,
   fetchMyLikesRequest, fetchMyLikesSuccess, fetchMyLikesFailure,
 } = likeSlice.actions;
-
-// ✅ reducer export
+ 
 export default likeSlice.reducer;

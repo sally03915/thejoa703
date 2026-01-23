@@ -1,60 +1,48 @@
-/**
- * CommentSaga 전체 CRUD 테스트
- * - 댓글 조회 (fetchComments)
- * - 댓글 생성 (createComment)
- * - 댓글 수정 (updateComment)
- * - 댓글 삭제 (deleteComment)
- */
-
-import { runSaga } from 'redux-saga'; // ✅ saga 실행 유틸
-import axios from '../../api/axios';  // ✅ axios 모듈 import
-
-// ✅ reducer 액션 import
+import { runSaga } from 'redux-saga'; 
+import axios from '../../api/axios';   
+ 
 import {
   fetchCommentsRequest, fetchCommentsSuccess, fetchCommentsFailure,
   createCommentRequest, createCommentSuccess, createCommentFailure,
   updateCommentRequest, updateCommentSuccess, updateCommentFailure,
   deleteCommentRequest, deleteCommentSuccess, deleteCommentFailure,
 } from '../../reducers/commentReducer';
-
-// ✅ saga 함수 import
+ 
 import { fetchComments, createComment, updateComment, deleteComment } from '../commentSaga';
-
-// ✅ axios 모듈 mock 처리
+ 
 jest.mock('../../api/axios');
 
-describe('commentSaga CRUD', () => {
-  // ✅ 댓글 조회 성공
-  it('fetchComments success', async () => {
-    const dispatched = [];
+describe('commentSaga', () => { 
+  // 댓글 조회
+  it('fetchCommentsSuccess', async () => {
     axios.get.mockResolvedValue({ data: [{ id: 1, content: 'hi' }] });
-
-    // ✅ 변경: payload에 postId 포함
-    const action = fetchCommentsRequest({ postId: 1 });
+    const dispatched = [];
+ 
+    const action = fetchCommentsRequest({ postId: 1 });  // react - view 
     await runSaga({ dispatch: (a) => dispatched.push(a) }, fetchComments, action).toPromise();
 
     expect(dispatched).toContainEqual(
       fetchCommentsSuccess({ postId: 1, comments: [{ id: 1, content: 'hi' }] })
     );
   });
-
-  // ✅ 댓글 조회 실패
-  it('fetchComments failure', async () => {
-    const dispatched = [];
+ 
+  // 댓글 조회 실패
+  it('fetchCommentsFailure', async () => {
     axios.get.mockRejectedValue(new Error('fail'));
+    const dispatched = [];
 
     const action = fetchCommentsRequest({ postId: 1 });
     await runSaga({ dispatch: (a) => dispatched.push(a) }, fetchComments, action).toPromise();
 
     expect(dispatched).toContainEqual(fetchCommentsFailure('fail'));
   });
-
-  // ✅ 댓글 생성 성공
-  it('createComment success', async () => {
-    const dispatched = [];
+ 
+  // 댓글 생성
+  it('createCommentSuccess', async () => {
     axios.post.mockResolvedValue({ data: { id: 2, content: 'new' } });
+    const dispatched = [];
 
-    // ✅ 변경: postId 포함
+    //  postId 포함
     const action = createCommentRequest({ postId: 1, dto: { content: 'new' } });
     await runSaga({ dispatch: (a) => dispatched.push(a) }, createComment, action).toPromise();
 
@@ -62,24 +50,23 @@ describe('commentSaga CRUD', () => {
       createCommentSuccess({ postId: 1, comment: { id: 2, content: 'new' } })
     );
   });
-
-  // ✅ 댓글 생성 실패
-  it('createComment failure', async () => {
-    const dispatched = [];
+  // 댓글 생성 실패
+  it('createCommentFailure', async () => {
     axios.post.mockRejectedValue(new Error('fail'));
+    const dispatched = [];
 
     const action = createCommentRequest({ postId: 1, dto: { content: 'bad' } });
     await runSaga({ dispatch: (a) => dispatched.push(a) }, createComment, action).toPromise();
 
     expect(dispatched).toContainEqual(createCommentFailure('fail'));
   });
-
-  // ✅ 댓글 수정 성공
-  it('updateComment success', async () => {
-    const dispatched = [];
+ 
+  // 댓글 수정
+  it('updateCommentSuccess', async () => {
     axios.patch.mockResolvedValue({ data: { id: 1, content: 'updated' } });
+    const dispatched = [];
 
-    // ✅ 변경: payload에 postId 포함
+    //  postId 포함
     const action = updateCommentRequest({ postId: 1, commentId: 1, dto: { content: 'updated' } });
     await runSaga({ dispatch: (a) => dispatched.push(a) }, updateComment, action).toPromise();
 
@@ -87,9 +74,9 @@ describe('commentSaga CRUD', () => {
       updateCommentSuccess({ postId: 1, comment: { id: 1, content: 'updated' } })
     );
   });
-
-  // ✅ 댓글 수정 실패
-  it('updateComment failure', async () => {
+ 
+  // 댓글 수정
+  it('updateCommentFailure', async () => {
     const dispatched = [];
     axios.patch.mockRejectedValue(new Error('fail'));
 
@@ -98,23 +85,24 @@ describe('commentSaga CRUD', () => {
 
     expect(dispatched).toContainEqual(updateCommentFailure('fail'));
   });
-
-  // ✅ 댓글 삭제 성공
-  it('deleteComment success', async () => {
-    const dispatched = [];
+ 
+  // 댓글삭제
+  it('deleteCommentSuccess', async () => {
     axios.delete.mockResolvedValue({});
-
-    // ✅ 변경: payload에 postId 포함
-    const action = deleteCommentRequest({ postId: 1, commentId: 1 });
-    await runSaga({ dispatch: (a) => dispatched.push(a) }, deleteComment, action).toPromise();
-
-    expect(dispatched).toContainEqual(deleteCommentSuccess({ postId: 1, commentId: 1 }));
-  });
-
-  // ✅ 댓글 삭제 실패
-  it('deleteComment failure', async () => {
     const dispatched = [];
+
+    //   postId 포함
+    const action = deleteCommentRequest({ postId: 1, commentId: 1 });
+    await runSaga({ dispatch: (a) => dispatched.push(a) }, deleteComment, action)
+      .toPromise();
+
+    expect(dispatched)
+      .toContainEqual(deleteCommentSuccess({ postId: 1, commentId: 1 }));
+  });
+ 
+  it('deleteCommentFailure', async () => {
     axios.delete.mockRejectedValue(new Error('fail'));
+    const dispatched = [];
 
     const action = deleteCommentRequest({ postId: 1, commentId: 1 });
     await runSaga({ dispatch: (a) => dispatched.push(a) }, deleteComment, action).toPromise();

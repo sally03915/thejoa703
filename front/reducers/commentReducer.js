@@ -1,8 +1,7 @@
-// ✅ Redux Toolkit 사용
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  comments: {}, // ✅ 변경: postId별 댓글 배열을 저장하는 객체 구조
+  comments: {},  
   loading: false,
   error: null,
 };
@@ -10,36 +9,36 @@ const initialState = {
 const commentSlice = createSlice({
   name: 'comment',
   initialState,
-  reducers: {
+  reducers: { 
     // 댓글 조회
     fetchCommentsRequest: (state) => { state.loading = true; },
     fetchCommentsSuccess: (state, action) => {
       state.loading = false;
-      const { postId, comments } = action.payload; // ✅ 변경: postId 포함
-      state.comments[postId] = comments;
+      const { postId, comments } = action.payload;  // 어떤 글에대한, 댓글들
+      state.comments[postId] = comments;   
     },
     fetchCommentsFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
-
+ 
     // 댓글 작성
     createCommentRequest: (state) => { state.loading = true; },
     createCommentSuccess: (state, action) => {
       state.loading = false;
-      const { postId, comment } = action.payload; // ✅ 변경: postId 포함
-      state.comments[postId] = [...(state.comments[postId] || []), comment];
+      const { postId, comment } = action.payload;  
+      state.comments[postId] = [...(state.comments[postId] || []), comment];  //기존댓글 추가
     },
     createCommentFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
-
+ 
     // 댓글 수정
     updateCommentRequest: (state) => { state.loading = true; },
     updateCommentSuccess: (state, action) => {
       state.loading = false;
-      const { postId, comment } = action.payload; // ✅ 변경: postId 포함
+      const { postId, comment } = action.payload; 
       state.comments[postId] = state.comments[postId].map(c =>
         c.id === comment.id ? comment : c
       );
@@ -48,12 +47,12 @@ const commentSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-
+ 
     // 댓글 삭제
     deleteCommentRequest: (state) => { state.loading = true; },
     deleteCommentSuccess: (state, action) => {
       state.loading = false;
-      const { postId, commentId } = action.payload; // ✅ 변경: postId 포함
+      const { postId, commentId } = action.payload;  
       state.comments[postId] = state.comments[postId].filter(c => c.id !== commentId);
     },
     deleteCommentFailure: (state, action) => {

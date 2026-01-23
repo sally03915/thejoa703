@@ -3,29 +3,19 @@
 // - Refresh Token은 HttpOnly 쿠키로 자동 포함 (axios.withCredentials)
 // - Access Token은 CSR에서만 localStorage/js-cookie로 저장/갱신
 
-import { call, put, takeLatest } from "redux-saga/effects";
-import Cookies from "js-cookie"; // CSR에서만 사용
+import { call, put, takeLatest } from "redux-saga/effects";  //## takeLatest
+import Cookies from "js-cookie"; 
 import api from "../api/axios";
 import {
-  signupRequest,
-  signupSuccess,
-  signupFailure,
-  loginRequest,
-  loginSuccess,
-  loginFailure,
-  refreshTokenRequest,
-  refreshTokenSuccess,
-  refreshTokenFailure,
-  logoutRequest,
-  logout,
-  logoutFailure,
-  updateNicknameRequest,
-  updateNicknameSuccess,
-  updateNicknameFailure,
-  updateProfileImageRequest,
-  updateProfileImageSuccess,
-  updateProfileImageFailure,
+  signupRequest,  signupSuccess,  signupFailure,
+  loginRequest,   loginSuccess,   loginFailure,
+  refreshTokenRequest,  refreshTokenSuccess,   refreshTokenFailure,
+  logoutRequest,  logout,  logoutFailure,
+  updateNicknameRequest,  updateNicknameSuccess,   updateNicknameFailure,
+  updateProfileImageRequest,  updateProfileImageSuccess,  updateProfileImageFailure,
 } from "../reducers/authReducer";
+
+import { message } from "antd";
 
 // --- 회원가입 API ---
 function signupApi(formData) {
@@ -47,24 +37,30 @@ export function* signup(action) {
 function loginApi(payload) {
   return api.post("/auth/login", payload);
 }
+
+import Router from "next/router";
+
 export function* login(action) {
   try {
     const { data } = yield call(loginApi, action.payload);
     const accessToken = data?.accessToken;
     const user = data?.user;
 
-    if (user && accessToken) {
-      // ✅ CSR에서만 Access Token 저장
+    if (user && accessToken) { 
       if (typeof window !== "undefined") {
         localStorage.setItem("accessToken", accessToken);
         Cookies.set("accessToken", accessToken);
       }
       yield put(loginSuccess({ user, accessToken }));
+      message.success(`${user.nickname}님 환영합니다!`);
+      Router.push("/mypage");  //##
     } else {
       yield put(loginFailure("아이디 또는 비밀번호가 올바르지 않습니다."));
+       message.error("로그인 정보를 확인할 수 없습니다.");
     }
   } catch (err) {
     yield put(loginFailure(err.response?.data?.error || err.message));
+    message.error("로그인 실패: 이메일/비밀번호를 확인하세요.");
   }
 }
 
@@ -85,13 +81,11 @@ export function* refresh() {
       localStorage.setItem("accessToken", newAccessToken);
       Cookies.set("accessToken", newAccessToken);
     }
-
-    // Redux 상태 갱신
+ 
     yield put(refreshTokenSuccess({ accessToken: newAccessToken }));
-  } catch (err) {
-    // 실패 시 에러 상태 저장
+  } catch (err) { 
     yield put(refreshTokenFailure(err.response?.data?.error || err.message));
-    yield put(logout()); // ✅ 변경된 부분: refresh 실패 시 강제 로그아웃
+    yield put(logout());  
   }
 }
 
@@ -101,10 +95,9 @@ export function* refresh() {
 function logoutApi() {
   return api.post("/auth/logout");
 }
-export function* logoutFlow() {
+export function* logoutFlow() {  //##
   try {
-    yield call(logoutApi);
-    // ✅ CSR: Access Token 제거
+    yield call(logoutApi); 
     if (typeof window !== "undefined") {
       localStorage.removeItem("accessToken");
       Cookies.remove("accessToken");
@@ -123,8 +116,7 @@ function updateNicknameApi({ userId, nickname }) {
 }
 export function* updateNickname(action) {
   try {
-    const { data } = yield call(updateNicknameApi, action.payload);
-    // ✅ 서버가 변경된 사용자 정보를 반환한다고 가정
+    const { data } = yield call(updateNicknameApi, action.payload); 
     yield put(updateNicknameSuccess({ user: data }));
   } catch (err) {
     yield put(updateNicknameFailure(err.response?.data?.error || err.message));
@@ -135,15 +127,14 @@ export function* updateNickname(action) {
 // Spring Boot 컨트롤러: @RequestParam("ufile") MultipartFile ufile
 function updateProfileImageApi({ userId, file }) {
   const formData = new FormData();
-  formData.append("ufile", file); // ✅ 필드명 ufile로 맞춤
+  formData.append("ufile", file);  
   return api.post(`/auth/${userId}/profile-image`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 }
 export function* updateProfileImage(action) {
   try {
-    const { data } = yield call(updateProfileImageApi, action.payload);
-    // ✅ 서버가 변경된 사용자 정보를 반환한다고 가정
+    const { data } = yield call(updateProfileImageApi, action.payload); 
     yield put(updateProfileImageSuccess({ user: data }));
   } catch (err) {
     yield put(updateProfileImageFailure(err.response?.data?.error || err.message));
@@ -155,7 +146,7 @@ export default function* authSaga() {
   yield takeLatest(signupRequest.type, signup);
   yield takeLatest(loginRequest.type, login);
   yield takeLatest(refreshTokenRequest.type, refresh);
-  yield takeLatest(logoutRequest.type, logoutFlow);
+  yield takeLatest(logoutRequest.type, logoutFlow);  //##
   yield takeLatest(updateNicknameRequest.type, updateNickname);
   yield takeLatest(updateProfileImageRequest.type, updateProfileImage);
 }

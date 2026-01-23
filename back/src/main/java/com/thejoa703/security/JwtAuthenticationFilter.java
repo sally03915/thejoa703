@@ -15,14 +15,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+//보안게이트
 /**
- * ✅ JWT 인증 필터 (통합 클래스 사용)
- * - Authorization 헤더에서 Bearer 토큰 추출
- * - JwtProvider로 Claims 파싱
- * - CustomUserPrincipal 기반 principal 생성 후 SecurityContext에 저장
- */
+ * JWT 인증필터
+ * - Authorization 헤더에서 Bearer 토큰추출
+ * - JwtProvider로 Claims파싱
+ * - CustomUserPincipal 기반   Pincipal 생성후 SecurityContext에 저장
+ * */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+	//JWT 토큰 발급/검증
     private final JwtProvider jwtProvider;
 
     public JwtAuthenticationFilter(JwtProvider jwtProvider) {
@@ -40,23 +42,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             try {
-                Claims claims = jwtProvider.parse(token).getBody();
-
-                // ✅ subject → userId(Long), role 추출
+                Claims claims = jwtProvider.parse(token).getBody();  
+                // subject  →  userId( Long ) , role 추출
                 Long userId = Long.parseLong(claims.getSubject());
                 String role = claims.get("role", String.class);
+                
+	             //CustomUserPincipal
+                 CustomOAuth2User userPrincipal = new CustomOAuth2User(userId, role);
 
-                // ✅ principal을 CustomUserPrincipal로 교체
-                CustomOAuth2User userPrincipal = new CustomOAuth2User(userId, role);
-
-                UsernamePasswordAuthenticationToken auth =
+                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 userPrincipal, null, userPrincipal.getAuthorities()
-                        );
+                 );
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
-
-                // ✅ 로그 확인용 (필요 시)
+                 SecurityContextHolder.getContext().setAuthentication(auth);
+ 
                 // log.debug("JWT 인증 성공: userId={}, role={}", userId, role);
 
             } catch (Exception e) {

@@ -23,33 +23,33 @@ import com.thejoa703.util.FileStorageService;
 
 import lombok.RequiredArgsConstructor;
 
+
 /**
- * 게시글 서비스
- * - 게시글 작성(Create), 조회(Read), 수정(Update), 삭제(Delete)
- * - 페이징 조회 및 해시태그 검색 지원
- * - 리트윗 수 포함
- */
+* 게시글 서비스
+* - 게시글 작성, 조회, 수정, 삭제
+* - 페이징 조회 및 해시태그 검색
+* - 리트윗 수 포함
+*/ 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class PostService {
-
-    private final PostRepository postRepository;
-    private final AppUserRepository userRepository;
-    private final HashtagRepository hashtagRepository;
-    private final FileStorageService fileStorageService;
-    private final RetweetRepository retweetRepository; // ✅ 변경: 리트윗 레포지토리 주입
-
-    // ✅ Create: 게시글 작성
+	
+    private final PostRepository postRepository; // 글게시글
+    private final AppUserRepository userRepository;  // 유저 레파지토리
+    private final HashtagRepository hashtagRepository; // 해쉬태그 레파지토리
+    private final FileStorageService fileStorageService; // 파일스토리지 - 업로드
+    private final RetweetRepository retweetRepository;  // 리트윗
+ 
+    ///// 게시글작성 - 이미지업로드 , 해쉬태그작성, 글작성
     public PostResponseDto createPost(Long userId, PostRequestDto dto, List<MultipartFile> files) {
         AppUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
-
-        Post post = new Post();
-        post.setContent(dto.getContent());
-        post.setUser(user);
-
-        // ✅ 이미지 업로드 처리
+                       .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+		Post post = new Post();
+		post.setContent(  dto.getContent()  );
+		post.setUser(user);
+        
+    		// 이미지 업로드
         if (files != null && !files.isEmpty()) {
             files.forEach(file -> {
                 String url = fileStorageService.upload(file);
@@ -58,13 +58,12 @@ public class PostService {
                 image.setPost(post);
                 post.getImages().add(image);
             });
-        }
-
-        // ✅ 해시태그 처리
+        } 
+		// 해쉬태그작성
         if (dto.getHashtags() != null && !dto.getHashtags().isEmpty()) {
             Set<String> distinctTags = Arrays.stream(dto.getHashtags().split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
+                    .map(String::trim)   // 양쪽공백빼기
+                    .filter(s -> !s.isEmpty())  // 비게아니라면
                     .collect(Collectors.toSet());
 
             distinctTags.forEach(tagStr -> {
@@ -77,59 +76,60 @@ public class PostService {
                         });
                 post.getHashtags().add(tag);
             });
-        }
-
-        Post saved = postRepository.save(post);
+        }    	
+		 
+    		// 글작성
+        Post saved = postRepository.save( post );
         PostResponseDto dtoResponse = PostResponseDto.from(saved);
-        dtoResponse.setRetweetCount(retweetRepository.countByOriginalPostId(saved.getId())); // ✅ 리트윗 수 포함
-        return dtoResponse;
+        dtoResponse.setRetweetCount(retweetRepository.countByOriginalPostId(saved.getId()));  // 리트윗처리
+    		return dtoResponse;
     }
-
-    // ✅ Read: 단일 게시글 조회
+    
+    
+    // 단일 게시글 조회
     @Transactional(readOnly = true)
-    public PostResponseDto getPost(Long postId) {
+    public PostResponseDto getPost(Long postId) {  // 해당하는 글번호 받아서 
         Post post = postRepository.findById(postId)
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
-
-        PostResponseDto dto = PostResponseDto.from(post);
-        dto.setRetweetCount(retweetRepository.countByOriginalPostId(post.getId())); // ✅ 리트윗 수 포함
+        
+        PostResponseDto dto = PostResponseDto.from(post);  // 이미지, 해쉬태그, 좋아요.... 묶음
+        dto.setRetweetCount(retweetRepository.countByOriginalPostId(post.getId()));  // 리트윗처리
         return dto;
     }
-
-    // ✅ Read: 전체 게시글 조회
+    // 전체게시글 조회
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getAllPosts() {
+    public List<PostResponseDto> getAllPosts() { // 삭제가 안된글들
         return postRepository.findByDeletedFalse().stream()
                 .map(post -> {
                     PostResponseDto dto = PostResponseDto.from(post);
-                    dto.setRetweetCount(retweetRepository.countByOriginalPostId(post.getId())); // ✅ 리트윗 수 포함
+                    dto.setRetweetCount(retweetRepository.countByOriginalPostId(post.getId())); 
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
-
-    // ✅ Read: 전체 게시글 페이징 조회 (Oracle 네이티브 페이징)
+ 
+    // 전체게시글 조회 페이징들어감.
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getAllPostsPaged(int page, int size) {
-        int start = (page - 1) * size + 1;
-        int end = page * size;
+    public List<PostResponseDto> getAllPostsPaged(int page, int size) {  // 현재페이지 1, 몇개씩 10
+        int start = (page - 1) * size + 1;  // 1(START)~10(END)
+        int end = page * size;  //10
         List<Post> posts = postRepository.findPostsWithPaging(start, end);
 
         return posts.stream()
                 .map(post -> {
                     PostResponseDto dto = PostResponseDto.from(post);
-                    dto.setRetweetCount(retweetRepository.countByOriginalPostId(post.getId())); // ✅ 리트윗 수 포함
+                    dto.setRetweetCount(retweetRepository.countByOriginalPostId(post.getId()));  
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
-
-    // ✅ Read: 특정 유저가 좋아요한 게시글 페이징 조회
+    
+    // 특정유저가 좋아요한 게시글 페이징 조회
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getLikedPostsPaged(Long userId, int page, int size) {
-        int start = (page - 1) * size + 1;
-        int end = page * size;
+    public List<PostResponseDto> getLikedPostsPaged(Long userId, int page, int size) {  // 현재페이지 1, 몇개씩 10
+        int start = (page - 1) * size + 1;  // start
+        int end = page * size; // end
         List<Post> posts = postRepository.findLikedPostsWithPaging(userId, start, end);
 
         return posts.stream()
@@ -138,10 +138,9 @@ public class PostService {
                     dto.setRetweetCount(retweetRepository.countByOriginalPostId(post.getId())); // ✅ 리트윗 수 포함
                     return dto;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());  // 리스트
     }
-
-    // ✅ Read: 내가 쓴 글 + 내가 리트윗한 글 페이징 조회 (Oracle UNION ALL 기반)
+    // 내가쓴글 + 리트윗
     @Transactional(readOnly = true)
     public List<PostResponseDto> getMyPostsAndRetweetsPaged(Long userId, int page, int size) {
         int start = (page - 1) * size + 1;
@@ -157,8 +156,8 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
     }
-
-    // ✅ Read: 해시태그 검색
+ 
+    // 해쉬태그검색
     @Transactional(readOnly = true)
     public List<PostResponseDto> getPostsByHashtag(String hashtag) {
         String normalized = hashtag.startsWith("#") ? hashtag.substring(1) : hashtag;
@@ -172,8 +171,8 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
     }
-
-    // ✅ Update: 게시글 수정
+    
+    // 게시글수정
     public PostResponseDto updatePost(Long userId, Long postId, PostRequestDto dto, List<MultipartFile> files) {
         Post post = postRepository.findById(postId)
                 .filter(p -> !p.isDeleted())
@@ -182,13 +181,12 @@ public class PostService {
         if (!post.getUser().getId().equals(userId)) {
             throw new SecurityException("본인 글만 수정할 수 있습니다.");
         }
-
-        // 내용 수정
+        // 내용수정
         post.setContent(dto.getContent());
-
-        // ✅ 이미지 갱신 로직
+ 
+        // 이미지 갱신 로직
         if (files != null && !files.isEmpty()) {
-            post.getImages().clear();
+            post.getImages().clear();  //초기화
             files.forEach(file -> {
                 String url = fileStorageService.upload(file);
                 Image image = new Image();
@@ -196,10 +194,8 @@ public class PostService {
                 image.setPost(post);
                 post.getImages().add(image);
             });
-        }
-        // files가 없으면 기존 이미지 유지
-
-        // ✅ 해시태그 갱신
+        } 
+        // 해쉬태그  갱신
         post.getHashtags().clear();
         if (dto.getHashtags() != null && !dto.getHashtags().isEmpty()) {
             Set<String> distinctTags = Arrays.stream(dto.getHashtags().split(","))
@@ -218,14 +214,13 @@ public class PostService {
                 post.getHashtags().add(tag);
             });
         }
- 
+        // 글 수정
         Post updated = postRepository.save(post);
         PostResponseDto dtoResponse = PostResponseDto.from(updated);
-        dtoResponse.setRetweetCount(retweetRepository.countByOriginalPostId(updated.getId())); // ✅ 리트윗 수 포함
+        dtoResponse.setRetweetCount(retweetRepository.countByOriginalPostId(updated.getId())); 
         return dtoResponse;
     }
-
-    // ✅ Delete: 게시글 삭제 (soft delete)
+    // 게시글삭제
     public void deletePost(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글 없음"));
@@ -235,8 +230,7 @@ public class PostService {
         post.setDeleted(true);
         postRepository.save(post);
     }
-
-    // ✅ Count: 전체 게시글 수
+    // 전체게시글 수
     @Transactional(readOnly = true)
     public long countPosts() {
         return postRepository.count();

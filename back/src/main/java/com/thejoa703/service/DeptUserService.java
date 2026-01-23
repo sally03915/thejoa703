@@ -19,8 +19,7 @@ public class DeptUserService {
         this.deptUserRepository = deptUserRepository;
         this.deptUserMapper = deptUserMapper;
     }
-
-    // ✅ JPA CRUD
+ 
     public DeptUser create(DeptUser deptUser) {
         return deptUserRepository.save(deptUser);
     }
@@ -40,11 +39,7 @@ public class DeptUserService {
     public void delete(Long deptno) {
         deptUserRepository.deleteById(deptno);
     }
-
-    // ✅ MyBatis 특수 쿼리
-    public List<DeptUser> findByLocation(String loc) {
-        return deptUserMapper.findByLocation(loc);
-    }
+ 
 
     public List<DeptUser> findByNameKeyword(String keyword) {
         return deptUserMapper.findByNameKeyword(keyword);

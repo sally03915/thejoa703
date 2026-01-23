@@ -1,11 +1,5 @@
-// ✅ 글 수정 모달 컴포넌트
 import { Modal, Form, Input, Upload, Button, Select } from "antd";
-
-/**
- * EditPostModal 컴포넌트
- * - 글 수정 모달 UI와 제출 로직 담당
- * - 부모에서 editPost, visible, onCancel, onSubmit, setUploadFiles를 props로 전달
- */
+ 
 export default function EditPostModal({
   visible,
   editPost,
@@ -55,3 +49,8 @@ export default function EditPostModal({
     </Modal>
   );
 }
+
+
+// export default function EditPostModal(){
+//     return <h1>EditPostModal</h1>;
+// }

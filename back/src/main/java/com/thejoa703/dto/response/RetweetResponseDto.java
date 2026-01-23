@@ -16,6 +16,6 @@ public class RetweetResponseDto {
     private Long userId;
     private Long originalPostId;
     private LocalDateTime createdAt;
-    private long retweetCount; // ✅ 변경: 리트윗 수 추가
+    private long retweetCount;  
     
 }

@@ -1,4 +1,3 @@
-// ✅ 필요한 라이브러리 import
 import { Card, List, Carousel, Image, Row, Col, message } from "antd";
 import { RetweetOutlined, CommentOutlined } from "@ant-design/icons";
 import Link from "next/link";
@@ -25,14 +24,13 @@ export default function PostCard({
   handleEdit,
   dispatch,
   likeLoading,
-  followingsMap,   // ✅ 이름을 followingsMap으로 통일
+  followingsMap,   
   followLoading,
 }) {
   const hashtagList = Array.isArray(post?.hashtags)
     ? post.hashtags
     : post?.hashtags ? [post?.hashtags] : [];
-
-  // ✅ 팔로우 여부 체크
+ 
   const isFollowing = followingsMap?.[String(post?.authorId)] === true;
 
   return (
@@ -89,7 +87,7 @@ export default function PostCard({
           }
         />
 
-        {/* ✅ 버튼 영역: 가로 한 줄 배치 */}
+        {/*  버튼 영역: 가로 한 줄 배치 */}
         <Row justify="space-between" align="middle" style={{ marginTop: "10px" }}>
           <Col><LikeButton
             postId={post?.id}

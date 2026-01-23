@@ -23,7 +23,6 @@ public class LikeController {
     private final PostLikeService likeService;
     private final AuthUserJwtService authUserJwtService;
 
-    // 🔒 JWT 필요: 좋아요 추가
     @Operation(summary = "좋아요 추가 (JWT 인증 필요)")
     @PostMapping
     public ResponseEntity<LikeResponseDto> addLike(
@@ -35,7 +34,6 @@ public class LikeController {
         return ResponseEntity.ok(response);
     }
 
-    // 🔓 공개: 게시글 좋아요 수 조회
     @Operation(summary = "게시글 좋아요 수 조회 (공개)")
     @GetMapping("/count/{postId}")
     public ResponseEntity<LikeResponseDto> countLikes(
@@ -51,7 +49,6 @@ public class LikeController {
         );
     }
 
-    // 🔒 JWT 필요: 좋아요 취소
     @Operation(summary = "좋아요 취소 (JWT 인증 필요)")
     @DeleteMapping("/{postId}")
     public ResponseEntity<LikeResponseDto> removeLike(
@@ -60,7 +57,7 @@ public class LikeController {
             @PathVariable("postId") Long postId
     ) {
         Long userId = authUserJwtService.getCurrentUserId(authentication);
-        LikeResponseDto response = likeService.removeLike(userId, postId); // ✅ 바뀐 부분
+        LikeResponseDto response = likeService.removeLike(userId, postId);  
         return ResponseEntity.ok(response);
     }
 }

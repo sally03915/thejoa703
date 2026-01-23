@@ -35,108 +35,112 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 인증/사용자 관련 컨트롤러
- * - 회원가입, 로그인, 닉네임 변경, 프로필 이미지 업로드, 삭제
+ * 인증/사용자 관리 컨트롤러
+ * - 회원가입, 로그인, 닉네임변경, 프로필이미지 업로드, 삭제 
  * - JWT + Redis 기반 토큰 발급/재발급/로그아웃 포함
- */
-@Tag(name = "Auth", description = "회원 인증 관련 API (Oracle 호환)")
-@RestController
-@RequestMapping("/auth")
-@RequiredArgsConstructor
+ **/
+ 
+@Tag(name = "Auth", description = "회원 인증 관련 API (Oracle 호환)")   //Swagger 태그
+@RestController  // REST API 컨트롤러 선언
+@RequestMapping("/auth") //   기본URL   /auth
+@RequiredArgsConstructor //   final 필드가 자동생성자 주입
 public class AuthController {
 
-    private final JwtProvider jwtProvider;     
-    private final TokenStore tokenStore;       
-    private final JwtProperties props;         
-    private final AppUserService appUserService; 
+    private final JwtProvider jwtProvider;        // JWT 토큰 생성/검증 제공 (access Token /refresh Token)
+    private final TokenStore tokenStore;          // Refresh Token 저장소  (Redis)
+    private final JwtProperties props;            // JWT 설정값  ( 만료시간 등 )
+    private final AppUserService appUserService;  // 사용자 서비스 계층
 
     // ✅ 회원가입
-    @Operation(summary = "회원가입")
-    @PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponseDto> signup(
-            @ModelAttribute UserRequestDto request,
-            @RequestPart(name = "ufile", required = false) MultipartFile ufile
-    ) {
-        return ResponseEntity.ok(appUserService.signup(request, ufile));
+    @Operation(summary = "회원가입")   //Swagger 문서 설명
+    @PostMapping( value="/signup"  , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public   ResponseEntity<UserResponseDto> singup(
+    		@ModelAttribute UserRequestDto  request,
+    		@RequestPart(name="ufile" , required= false) MultipartFile ufile
+    		
+    	){
+    		return  ResponseEntity.ok(   appUserService.signup(request, ufile)  );
     }
 
-    // ✅ 로그인 (Access Token + Refresh Token 발급)
+    // 로그인
     @Operation(summary = "로그인 (Access Token + Refresh Token 발급)")
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> login(
             @RequestBody LoginRequest request,
-            HttpServletResponse response
+            HttpServletResponse response   // 응답객체 (쿠키 설정)
     ) {
+    		// 사용자 인증처리
         UserResponseDto user = appUserService.login(request);
 
+        // Access Token 생성 ( 사용자id + 역할)
         String accessToken = jwtProvider.createAccessToken(
                 user.getId().toString(),
                 Map.of("role", user.getRole())
         );
 
+        // RfreshToken Token 생성 
         String refreshToken = jwtProvider.createRefreshToken(user.getId().toString());
 
+        // Redis Token 저장소에 저장
         tokenStore.saveRefreshToken(
                 user.getId().toString(),
                 refreshToken,
                 (long) props.getRefreshTokenExpSeconds()
         );
-
-        // ✅ Refresh Token을 HttpOnly Cookie로 내려줌
+        
+        // 쿠키설정
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .path("/")
-                .maxAge(props.getRefreshTokenExpSeconds())
+                .httpOnly(true)  // js 접근불가
+                .secure(true)  // https 전송한 허용
+                .sameSite("Strict")  // csrf 방지
+                .path("/")  // 전체경로 적용
+                .maxAge(props.getRefreshTokenExpSeconds())  // 만료시간 설정
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
+        // 사용자 정보반환
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
                 "user", user
         ));
     }
-
-    // ✅ 현재 로그인한 사용자 정보 조회
+    
+    // 현재 로그인한 사용자 정보조회
     @Operation(summary = "현재 로그인한 사용자 정보 조회")
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> me(HttpServletRequest request,
-                                              @CookieValue(name = "refreshToken", required = false) String refreshToken) {
-        try {
-            // 우선 Authorization 헤더에서 Access Token 확인
+                 @CookieValue(name = "refreshToken", required = false) String refreshToken) {
+        try { 
+        		// Authorization 헤더에서 Access Token 확인
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
-                var claims = jwtProvider.parse(token).getBody();
-                String userId = claims.getSubject();
-                UserResponseDto user = appUserService.findById(Long.valueOf(userId));
+                String token = authHeader.substring(7);  // Bearer  제거
+                var claims = jwtProvider.parse(token).getBody();  // 토큰파싱
+                String userId = claims.getSubject(); // 사용자 id추출
+                UserResponseDto user = appUserService.findById(Long.valueOf(userId)); //사용자조회
                 return ResponseEntity.ok(user);
-            }
-            // Access Token이 없으면 refreshToken 쿠키로 확인
+            } 
+            //  Authorization 없으면  RefreshToken 쿠키를 확인
             if (refreshToken != null) {
                 var claims = jwtProvider.parse(refreshToken).getBody();
-                String userId = claims.getSubject();
-                UserResponseDto user = appUserService.findById(Long.valueOf(userId));
+                String userId = claims.getSubject();// 사용자 id추출
+                UserResponseDto user = appUserService.findById(Long.valueOf(userId)); //사용자조회
                 return ResponseEntity.ok(user);
             }
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(401).build();  // 인증실패 401
         } catch (Exception e) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(401).build();  // 예외 발생시 인증 실패
         }
     }
-
-    // ✅ 닉네임 변경
+    // 닉네임
     @Operation(summary = "닉네임 변경")
-    @PatchMapping("/{userId}/nickname")
+    @PatchMapping("/{userId}/nickname")  // Patch
     public ResponseEntity<UserResponseDto> updateNickname(
-            @PathVariable("userId") Long userId,
-            @RequestParam("nickname") String nickname
+            @PathVariable("userId") Long userId,  // 경로에서 UserId 추출
+            @RequestParam("nickname") String nickname   
     ) {
         return ResponseEntity.ok(appUserService.updateNickname(userId, nickname));
     }
 
-    // ✅ 프로필 이미지 업로드/교체
     @Operation(summary = "프로필 이미지 업로드/교체")
     @PostMapping(value = "/{userId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponseDto> updateProfileImage(
@@ -147,42 +151,39 @@ public class AuthController {
     }
     ///////////////////////////
     /*
-    // ✅ 사용자 삭제 (soft delete)
+    //  사용자 삭제 (soft delete)
     @Operation(summary = "사용자 삭제(soft delete)")
     @DeleteMapping
     public ResponseEntity<Void> deleteByEmail(@RequestParam("email") String email) {
         appUserService.deleteByEmail(email);
         return ResponseEntity.noContent().build();
     }*/
-    
- // ✅ 회원 탈퇴 (현재 로그인 사용자 기준)
+     
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMe(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @CookieValue(name = "refreshToken", required = false) String refreshToken) {
         try {
-            // 1. Access Token 확인 (Authorization 헤더 필수)
+        		
+        		// AccessToken 확인
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                // Swagger나 React에서 Bearer 토큰을 헤더에 붙이지 않으면 401
                 return ResponseEntity.status(401).build();
-            }
-
-            // 2. Access Token 파싱 → 사용자 ID 추출
+            } 
+            // AccessToken 추출
             String accessToken = authHeader.substring(7);
             var claims = jwtProvider.parse(accessToken).getBody();
             String userId = claims.getSubject();
 
-            // 3. 사용자 삭제 (soft delete 또는 hard delete)
+            // 해당하는 유저삭제
             appUserService.deleteById(Long.valueOf(userId));
 
-            // 4. Refresh Token 제거 (Redis 등 토큰 저장소에서 삭제)
+            // refresh 토큰삭제
             if (refreshToken != null) {
                 tokenStore.deleteRefreshToken(userId);
             }
-
-            // 5. Refresh Token 쿠키 삭제 (HttpOnly 쿠키 제거)
+            // 쿠키에서 삭제
             ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                     .httpOnly(true)
                     .secure(true)
@@ -194,35 +195,29 @@ public class AuthController {
 
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            // 토큰 파싱 실패나 기타 예외 발생 시 401 반환
             return ResponseEntity.status(401).build();
         }
     }
 
 
-
-    // ✅ 전체 사용자 수 조회
     @Operation(summary = "전체 사용자 수 조회")
     @GetMapping("/count")
     public ResponseEntity<Long> countUsers() {
         return ResponseEntity.ok(appUserService.countUsers());
     }
 
-    // ✅ 이메일 중복 확인
     @Operation(summary = "이메일 중복 확인")
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam("email") String email) {
         return ResponseEntity.ok(appUserService.existsByEmail(email));
     }
 
-    // ✅ 닉네임 중복 확인
     @Operation(summary = "닉네임 중복 확인")
     @GetMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam("nickname") String nickname) {
         return ResponseEntity.ok(appUserService.existsByNickname(nickname));
     }
 
-    // ✅ Access Token 재발급
     @Operation(summary = "Access Token 재발급")
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refresh(@CookieValue("refreshToken") String refreshToken) {
@@ -243,7 +238,6 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
-
     // ✅ 로그아웃
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
@@ -253,8 +247,7 @@ public class AuthController {
         String userId = claims.getSubject();
 
         tokenStore.deleteRefreshToken(userId);
-
-        // ✅ Refresh Token 쿠키 삭제 (MaxAge=0)
+ 
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(true)

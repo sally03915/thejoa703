@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  retweets: {},       // postId별 내가 리트윗했는지 여부
-  retweetsCount: {},  // ✅ 변경: postId별 리트윗 수 관리
+  retweets: {},       
+  retweetsCount: {},  
   loading: false,
   error: null,
 };
@@ -14,9 +14,9 @@ const retweetSlice = createSlice({
     addRetweetRequest: (state) => { state.loading = true; },
     addRetweetSuccess: (state, action) => {
       state.loading = false;
-      const { postId, retweetCount } = action.payload; // ✅ 변경
+      const { postId, retweetCount } = action.payload; 
       state.retweets[postId] = true;
-      state.retweetsCount[postId] = retweetCount;      // ✅ 변경
+      state.retweetsCount[postId] = retweetCount;      
     },
     addRetweetFailure: (state, action) => {
       state.loading = false;
@@ -26,9 +26,9 @@ const retweetSlice = createSlice({
     removeRetweetRequest: (state) => { state.loading = true; },
     removeRetweetSuccess: (state, action) => {
       state.loading = false;
-      const { postId, retweetCount } = action.payload; // ✅ 변경
+      const { postId, retweetCount } = action.payload; 
       state.retweets[postId] = false;
-      state.retweetsCount[postId] = retweetCount;      // ✅ 변경
+      state.retweetsCount[postId] = retweetCount;     
     },
     removeRetweetFailure: (state, action) => {
       state.loading = false;
@@ -50,7 +50,7 @@ const retweetSlice = createSlice({
     fetchMyRetweetsSuccess: (state, action) => {
       state.loading = false;
       const retweetedPosts = action.payload; // { postId: true }
-      state.retweets = { ...state.retweets, ...retweetedPosts }; // ✅ 변경
+      state.retweets = { ...state.retweets, ...retweetedPosts };  
     },
     fetchMyRetweetsFailure: (state, action) => {
       state.loading = false;

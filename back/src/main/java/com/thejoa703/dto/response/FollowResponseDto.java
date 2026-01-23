@@ -18,7 +18,7 @@ public class FollowResponseDto {
     private String email;
     private String ufile;
 
-    private boolean blocked; // ✅ 추가
+    private boolean blocked;  
 
     public static FollowResponseDto of(Follow follow, AppUser targetUser, boolean blocked) {
         FollowResponseDto dto = new FollowResponseDto();
