@@ -82,7 +82,7 @@ jobs:
           script: |
             cd /home/ubuntu/app
             pm2 delete backend || true
-            pm2 start java --name backend -- -jar app.jar   # ✅ mv 제거, 바로 실행
+            pm2 start java --name backend -- -jar app.jar  # ✅ mv 제거, 바로 실행
 
   frontend:
     runs-on: ubuntu-latest
