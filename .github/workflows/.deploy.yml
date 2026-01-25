@@ -28,21 +28,25 @@ jobs:
 
       - name: Debug Backend Files
         run: |
+          echo "=== back 디렉터리 ==="
           ls -al back
+          echo "=== build/libs 디렉터리 ==="
           ls -al back/build/libs
 
       - name: Find JAR file (exclude plain.jar)
         run: echo "JAR_FILE=$(ls back/build/libs/*.jar | grep -v plain | head -n 1)" >> $GITHUB_ENV
 
       - name: Debug JAR_FILE
-        run: echo "JAR_FILE=${{ env.JAR_FILE }}"
+        run: echo "선택된 JAR_FILE=${{ env.JAR_FILE }}"
 
       - name: Ensure JAR exists
         run: |
           if [ ! -f "${{ env.JAR_FILE }}" ]; then
             echo "❌ JAR file not found: ${{ env.JAR_FILE }}"
+            ls -al back/build/libs
             exit 1
           fi
+          echo "✅ JAR file found: ${{ env.JAR_FILE }}"
 
       # 🔑 Secrets 기반으로 .env 파일 생성
       - name: Create Backend .env from Secrets
@@ -64,15 +68,26 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: mkdir -p /home/ubuntu/app
 
-      # ✅ 변경: JAR 파일을 tar로 압축
+      # ✅ 변경: JAR 파일을 app.jar로 rename 후 tar 압축
       - name: Archive JAR
         run: |
           cd back/build/libs
-          mv $(basename ${{ env.JAR_FILE }}) app.jar   # ✅ 현재 디렉터리 기준으로 파일명만 사용
+          mv $(basename ${{ env.JAR_FILE }}) app.jar
           tar -czf app.tar.gz app.jar
+          echo "=== tar 파일 생성 확인 ==="
+          ls -lh app.jar app.tar.gz
 
+      # ✅ tar 파일 존재 여부 체크
+      - name: Ensure tar exists
+        run: |
+          if [ ! -f "back/build/libs/app.tar.gz" ]; then
+            echo "❌ tar 파일 생성 실패"
+            ls -al back/build/libs
+            exit 1
+          fi
+          echo "✅ tar 파일 생성 완료"
 
-      # ✅ 변경: tar 파일만 전송
+      # ✅ tar 파일만 전송
       - name: Copy Backend JAR archive to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -82,7 +97,7 @@ jobs:
           source: "back/build/libs/app.tar.gz"
           target: "/home/ubuntu/app"
 
-      # ✅ 변경: EC2에서 압축 해제
+      # ✅ EC2에서 압축 해제
       - name: Extract JAR on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -91,7 +106,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
+            ls -lh
+            if [ ! -f "app.tar.gz" ]; then
+              echo "❌ EC2에 app.tar.gz 없음"
+              exit 1
+            fi
             tar -xzf app.tar.gz
+            echo "✅ 압축 해제 완료"
+            ls -lh
 
       - name: Debug EC2 app directory
         uses: appleboy/ssh-action@v0.1.7
@@ -120,6 +142,7 @@ jobs:
             cd /home/ubuntu/app
             pm2 delete backend || true
             pm2 start java --name backend -- -jar app.jar --spring.config.location=/home/ubuntu/app/.env
+
 
   frontend:
     runs-on: ubuntu-latest
