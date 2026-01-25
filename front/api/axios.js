@@ -3,7 +3,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080", 
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8484", 
   // 기본 api 서버주소, 환경변수가 없으면 로컬서버 사용
   withCredentials: true, 
   // refresh Token 이 HttpOnly 쿠키에  저장이 되어 있으면 자동 포함 필요
