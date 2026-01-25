@@ -26,14 +26,25 @@ jobs:
         run: ./gradlew build -x test
         working-directory: back
 
-      - name: Copy JAR to EC2
+      - name: Create Backend .env   # 🔧 추가: GitHub Secrets 기반으로 .env 생성
+        run: |
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> back/.env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> back/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> back/.env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> back/.env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> back/.env
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> back/.env
+          echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> back/.env
+          echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> back/.env
+
+      - name: Copy JAR and .env to EC2   # 🔧 수정: JAR과 .env를 함께 복사
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "back/build/libs/back-0.0.1-SNAPSHOT.jar"   # 🔧 수정: 특정 JAR 파일만 지정
-          target: "/home/ubuntu/app/app.jar"                  # 🔧 수정: EC2에 고정된 이름(app.jar)으로 복사
+          source: "back/build/libs/back-0.0.1-SNAPSHOT.jar,back/.env"
+          target: "/home/ubuntu/app"
 
       - name: Run Backend on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
@@ -43,6 +54,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
+            mv back-0.0.1-SNAPSHOT.jar app.jar   # 🔧 JAR 이름을 app.jar로 고정
+            export $(cat .env | xargs)           # 🔧 .env 로드해서 환경변수 적용
             pm2 delete backend || true
             pm2 start java --name backend -- -jar app.jar    
             
@@ -63,13 +76,17 @@ jobs:
           npm run build -- --no-lint
         working-directory: front
 
-      - name: Copy Frontend project to EC2
+      - name: Create Frontend .env.production   # 🔧 추가: GitHub Secrets 기반으로 .env.production 생성
+        run: |
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" >> front/.env.production
+
+      - name: Copy Frontend project and .env.production to EC2   # 🔧 수정: 프로젝트와 .env.production 함께 복사
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "front/*"
+          source: "front/*,front/.env.production"
           target: "/home/ubuntu/front"
 
       - name: Run Frontend on EC2 with pm2
