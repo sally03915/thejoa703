@@ -51,9 +51,9 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/app
 
-      - name: Find JAR file
+      - name: Find JAR file   # ✅ plain.jar 제외하도록 수정
         id: findjar
-        run: echo "JAR_FILE=$(ls back/build/libs/*.jar | head -n 1)" >> $GITHUB_ENV
+        run: echo "JAR_FILE=$(ls back/build/libs/*.jar | grep -v plain | head -n 1)" >> $GITHUB_ENV
 
       - name: Copy Backend JAR to EC2
         uses: appleboy/scp-action@v0.1.7
