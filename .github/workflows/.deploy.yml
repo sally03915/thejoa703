@@ -32,8 +32,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "back/build/libs/*.jar"
-          target: "/home/ubuntu/app"
+          source: "back/build/libs/back-0.0.1-SNAPSHOT.jar"   # 🔧 수정: 특정 JAR 파일만 지정
+          target: "/home/ubuntu/app/app.jar"                  # 🔧 수정: EC2에 고정된 이름(app.jar)으로 복사
 
       - name: Run Backend on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
@@ -44,7 +44,7 @@ jobs:
           script: |
             cd /home/ubuntu/app
             pm2 delete backend || true
-            pm2 start "java -jar *.jar" --name backend
+            pm2 start "java -jar app.jar" --name backend       # 🔧 수정: *.jar 대신 app.jar로 실행
 
   frontend:
     runs-on: ubuntu-latest
