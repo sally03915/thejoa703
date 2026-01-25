@@ -108,7 +108,6 @@ jobs:
           ls -al front
           ls -al front/.next || true
           ls -al front/public || true
-          ls -al front/.next/standalone || true
 
       - name: Create Frontend .env.production
         run: |
@@ -123,14 +122,29 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/front
 
-      - name: Copy Frontend build and .env.production to EC2  # ✅ 수정됨: glob 제거
+      - name: Archive frontend build   # ✅ tar 묶어서 전송 방식 적용
+        run: |
+          cd front
+          tar -czf ../frontend-build.tar.gz .next public package.json .env.production
+
+      - name: Copy frontend archive to EC2   # ✅ tar 파일만 전송
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "front/.next front/public front/package.json front/.env.production"  # ✅ 수정됨
+          source: "frontend-build.tar.gz"
           target: "/home/ubuntu/front"
+
+      - name: Extract archive on EC2   # ✅ EC2에서 압축 해제
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/front
+            tar -xzf frontend-build.tar.gz
 
       - name: Run Frontend on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
