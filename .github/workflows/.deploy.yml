@@ -37,13 +37,22 @@ jobs:
           echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> back/.env
           echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> back/.env
 
-      - name: Copy JAR and .env to EC2   # 🔧 JAR과 .env 함께 복사
+      - name: Ensure app directory exists on EC2   # ✅ 추가: 디렉토리 보장
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/app
+
+      - name: Copy JAR and .env to EC2   # ✅ 수정: 쉼표 → 공백, *.jar 패턴 사용
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "back/build/libs/back-0.0.1-SNAPSHOT.jar,back/.env"
+          source: "back/build/libs/*.jar back/.env"   # ✅ 수정된 부분
           target: "/home/ubuntu/app"
 
       - name: Run Backend on EC2 with pm2
@@ -54,8 +63,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            mv back-0.0.1-SNAPSHOT.jar app.jar   # 🔧 JAR 이름 고정
-            export $(cat .env | xargs)           # 🔧 .env 로드
+            mv *.jar app.jar   # ✅ 수정: JAR 이름 불일치 대비 → *.jar 사용
+            export $(cat .env | xargs)   # 🔧 .env 로드
             pm2 delete backend || true
             pm2 start java --name backend -- -jar app.jar    
 
@@ -76,17 +85,26 @@ jobs:
           npm run build -- --no-lint
         working-directory: front
 
-      - name: Create Frontend .env.production   # 🔧 Secrets 기반으로 덮어쓰기  생성
+      - name: Create Frontend .env.production   # 🔧 Secrets 기반으로 덮어쓰기 생성
         run: |
           echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > front/.env.production
 
-      - name: Copy Frontend project and .env.production to EC2   # 🔧 프로젝트와 .env.production 함께 복사
+      - name: Ensure front directory exists on EC2   # ✅ 추가: 디렉토리 보장
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/front
+
+      - name: Copy Frontend project and .env.production to EC2   # ✅ 수정: 쉼표 → 공백
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "front/*,front/.env.production"
+          source: "front/* front/.env.production"   # ✅ 수정된 부분
           target: "/home/ubuntu/front"
 
       - name: Run Frontend on EC2 with pm2
