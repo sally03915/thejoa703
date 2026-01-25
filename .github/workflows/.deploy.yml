@@ -105,7 +105,7 @@ jobs:
           target: "/home/ubuntu/app"
         # .env 파일도 EC2로 복사
 
-      - name: Run Backend on EC2 with pm2 (환경변수 반영)
+      - name: Run Backend on EC2 with pm2 (.env 반영)
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -114,8 +114,9 @@ jobs:
           script: |
             cd /home/ubuntu/app
             pm2 delete backend || true
-            pm2 start java --name backend -- -jar $(ls *.jar | grep -v plain | head -n 1) --spring.config.location=/home/ubuntu/app/.env
-        # pm2로 JAR 실행 (plain.jar 제외, 첫 번째 JAR 실행)
+            export $(cat .env | xargs)   # .env 내용을 환경변수로 로드
+            pm2 start java --name backend -- -jar $(ls *.jar | grep -v plain | head -n 1)
+
 
   frontend:
     runs-on: ubuntu-latest
