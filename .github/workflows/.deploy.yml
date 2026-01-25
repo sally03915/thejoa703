@@ -51,18 +51,18 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/app
 
-      - name: Find JAR file   # ✅ plain.jar 제외하도록 수정
+      - name: Find JAR file   # ✅ plain.jar 제외
         id: findjar
         run: echo "JAR_FILE=$(ls back/build/libs/*.jar | grep -v plain | head -n 1)" >> $GITHUB_ENV
 
-      - name: Copy Backend JAR to EC2
+      - name: Copy Backend JAR to EC2   # ✅ 바로 app.jar로 저장
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ env.JAR_FILE }}"
-          target: "/home/ubuntu/app"
+          target: "/home/ubuntu/app/app.jar"
 
       - name: Copy Backend .env to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -81,10 +81,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            mv $(basename ${{ env.JAR_FILE }}) app.jar
-            export $(cat .env | xargs)
             pm2 delete backend || true
-            pm2 start java --name backend -- -jar app.jar
+            pm2 start java --name backend -- -jar app.jar   # ✅ mv 제거, 바로 실행
 
   frontend:
     runs-on: ubuntu-latest
