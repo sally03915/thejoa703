@@ -65,14 +65,14 @@ jobs:
             exit 1
           fi
 
-      - name: Copy Backend JAR to EC2   # ✅ target을 디렉토리까지만 지정
+      - name: Copy Backend JAR to EC2   # ✅ target을 파일(app.jar)까지 지정 → rename 단계 불필요
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ env.JAR_FILE }}"
-          target: "/home/ubuntu/app"
+          target: "/home/ubuntu/app/app.jar"
 
       - name: Debug EC2 app directory   ## ✅ 복사 후 실제 확인
         uses: appleboy/ssh-action@v0.1.7
@@ -82,22 +82,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             ls -al /home/ubuntu/app
-
-      - name: Rename JAR on EC2 to app.jar   # ✅ 항상 app.jar로 고정, 안전 처리
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/app
-            rm -rf app.jar
-            if ls *.jar 1> /dev/null 2>&1; then
-              mv *.jar app.jar
-            else
-              echo "❌ No JAR file found in /home/ubuntu/app"
-              exit 1
-            fi
 
       - name: Copy Backend .env to EC2
         uses: appleboy/scp-action@v0.1.7
