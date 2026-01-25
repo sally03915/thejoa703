@@ -3,27 +3,27 @@ name: Deploy Fullstack App
 on:
   push:
     branches:
-      - main
+      - main   # main 브랜치에 push 될 때만 실행
 
 jobs:
   backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest   # GitHub Actions 실행 환경: Ubuntu 최신 버전
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3   # 현재 레포지토리 코드 체크아웃
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: '17'        # JDK 17 설치
+          distribution: 'temurin'   # OpenJDK 배포판 선택
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-        working-directory: back
+        run: chmod +x ./gradlew     # gradlew 실행 권한 부여
+        working-directory: back     # back 디렉토리에서 실행
 
       - name: Build Spring Boot App
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test   # 테스트 제외하고 빌드
         working-directory: back
 
       - name: Debug Backend Files
@@ -31,13 +31,14 @@ jobs:
           echo "=== back 디렉터리 ==="
           ls -al back
           echo "=== build/libs 디렉터리 ==="
-          ls -al back/build/libs
+          ls -al back/build/libs      # 빌드 결과 확인
 
       - name: Find JAR file (exclude plain.jar)
         run: echo "JAR_FILE=$(ls back/build/libs/*.jar | grep -v plain | head -n 1)" >> $GITHUB_ENV
+        # plain.jar 제외하고 첫 번째 JAR 파일을 환경변수 JAR_FILE로 설정
 
       - name: Debug JAR_FILE
-        run: echo "선택된 JAR_FILE=${{ env.JAR_FILE }}"
+        run: echo "선택된 JAR_FILE=${{ env.JAR_FILE }}"   # 선택된 JAR 파일 출력
 
       - name: Ensure JAR exists
         run: |
@@ -47,6 +48,7 @@ jobs:
             exit 1
           fi
           echo "✅ JAR file found: ${{ env.JAR_FILE }}"
+        # JAR 파일 존재 여부 확인
 
       # 🔑 Secrets 기반으로 .env 파일 생성
       - name: Create Backend .env from Secrets
@@ -59,6 +61,7 @@ jobs:
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> back/.env
           echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> back/.env
           echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> back/.env
+        # EC2에서 사용할 환경변수 파일 생성
 
       - name: Ensure app directory exists on EC2
         uses: appleboy/ssh-action@v0.1.7
@@ -67,19 +70,20 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: mkdir -p /home/ubuntu/app
+        # EC2에 /home/ubuntu/app 디렉토리 생성
 
-      # ✅ 변경: JAR 파일을 app.jar로 rename
-      - name: Rename JAR locally to app.jar
-        run: mv ${{ env.JAR_FILE }} back/build/libs/app.jar
+      # ❌ 제거된 부분: Rename JAR locally to app.jar
+      # - name: Rename JAR locally to app.jar
+      #   run: mv ${{ env.JAR_FILE }} back/build/libs/app.jar
+      #   → 이 부분이 문제를 일으켜서 제거했습니다. 원래 파일명(back-0.0.1-SNAPSHOT.jar 등)을 그대로 사용합니다.
 
-      # ✅ 변경: EC2로 app.jar만 전송
       - name: Copy Backend JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "back/build/libs/app.jar"
+          source: "${{ env.JAR_FILE }}"   # 빌드된 JAR 파일 그대로 전송
           target: "/home/ubuntu/app"
 
       - name: Debug EC2 app directory
@@ -89,6 +93,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: ls -lh /home/ubuntu/app
+        # EC2에 JAR 파일이 제대로 복사되었는지 확인
 
       - name: Copy Backend .env to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -98,6 +103,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "back/.env"
           target: "/home/ubuntu/app"
+        # .env 파일도 EC2로 복사
 
       - name: Run Backend on EC2 with pm2 (환경변수 반영)
         uses: appleboy/ssh-action@v0.1.7
@@ -108,7 +114,8 @@ jobs:
           script: |
             cd /home/ubuntu/app
             pm2 delete backend || true
-            pm2 start java --name backend -- -jar app.jar --spring.config.location=/home/ubuntu/app/.env
+            pm2 start java --name backend -- -jar $(ls *.jar | grep -v plain | head -n 1) --spring.config.location=/home/ubuntu/app/.env
+        # pm2로 JAR 실행 (plain.jar 제외, 첫 번째 JAR 실행)
 
   frontend:
     runs-on: ubuntu-latest
