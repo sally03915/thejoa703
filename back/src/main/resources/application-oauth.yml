@@ -43,6 +43,6 @@ spring:
 
 app:
   oauth2:
-    redirect-url: http://localhost:3000/oauth2/callback
+    redirect-url: http://54.180.118.63/oauth2/callback
 
  
