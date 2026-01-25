@@ -187,5 +187,7 @@ jobs:
           script: |
             cd /home/ubuntu/front
             npm install --production
+            npm run build              # ✅ 빌드 추가
             pm2 delete frontend || true
             pm2 start npm --name "frontend" -- run start
+
