@@ -44,6 +44,18 @@ jobs:
             exit 1
           fi
 
+      # 🔑 Secrets 기반으로 .env 파일 생성
+      - name: Create Backend .env from Secrets
+        run: |
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> back/.env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> back/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> back/.env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> back/.env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> back/.env
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> back/.env
+          echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> back/.env
+          echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> back/.env
+
       - name: Ensure app directory exists on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -60,7 +72,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ env.JAR_FILE }}"
           target: "/home/ubuntu/app/app.jar"
-          debug: true
 
       - name: Debug EC2 app directory
         uses: appleboy/ssh-action@v0.1.7
