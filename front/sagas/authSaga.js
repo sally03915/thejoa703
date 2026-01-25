@@ -19,7 +19,7 @@ import { message } from "antd";
 
 // --- 회원가입 API ---
 function signupApi(formData) {
-  return api.post("/auth/signup", formData, {
+  return api.post("/api/auth/signup", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 }
@@ -35,7 +35,7 @@ export function* signup(action) {
 // --- 로그인 API ---
 // Spring Boot: { accessToken, user } 반환 + Refresh Token은 HttpOnly 쿠키로 내려감
 function loginApi(payload) {
-  return api.post("/auth/login", payload);
+  return api.post("/api/auth/login", payload);
 }
 
 import Router from "next/router";
@@ -68,7 +68,7 @@ export function* login(action) {
 // Spring Boot: { accessToken } 반환
 // Refresh Token 재발급 Saga
 function refreshApi() {
-  return api.post("/auth/refresh");
+  return api.post("/api/auth/refresh");
 }
 export function* refresh() {
   try {
@@ -93,7 +93,7 @@ export function* refresh() {
 // --- 로그아웃 API ---
 // Spring Boot: Redis Refresh Token 삭제 + Refresh Token 쿠키 만료
 function logoutApi() {
-  return api.post("/auth/logout");
+  return api.post("/api/auth/logout");
 }
 export function* logoutFlow() {  //##
   try {
@@ -110,7 +110,7 @@ export function* logoutFlow() {  //##
 
 // --- 닉네임 변경 API ---
 function updateNicknameApi({ userId, nickname }) {
-  return api.patch(`/auth/${userId}/nickname`, null, {
+  return api.patch(`/api/auth/${userId}/nickname`, null, {
     params: { nickname },
   });
 }
@@ -128,7 +128,7 @@ export function* updateNickname(action) {
 function updateProfileImageApi({ userId, file }) {
   const formData = new FormData();
   formData.append("ufile", file);  
-  return api.post(`/auth/${userId}/profile-image`, formData, {
+  return api.post(`/api/auth/${userId}/profile-image`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 }
