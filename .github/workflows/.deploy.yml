@@ -26,6 +26,11 @@ jobs:
         run: ./gradlew build -x test
         working-directory: back
 
+      - name: Debug Backend Files   # ✅ 추가: 빌드 결과 확인용
+        run: |
+          ls -al back
+          ls -al back/build/libs
+
       - name: Create Backend .env   # 🔧 GitHub Secrets 기반으로 .env 생성
         run: |
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" > back/.env
@@ -46,13 +51,26 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/app
 
-      - name: Copy JAR and .env to EC2   # ✅ 수정: 쉼표 → 공백, *.jar 패턴 사용
+      - name: Find JAR file   # ✅ 추가: JAR 파일 자동 추출
+        id: findjar
+        run: echo "JAR_FILE=$(ls back/build/libs/*.jar | head -n 1)" >> $GITHUB_ENV
+
+      - name: Copy Backend JAR to EC2   # ✅ 수정: 자동 추출된 JAR 사용
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "back/build/libs/*.jar back/.env"   # ✅ 수정된 부분
+          source: "${{ env.JAR_FILE }}"   # ✅ 자동 추출된 JAR 파일 경로
+          target: "/home/ubuntu/app"
+
+      - name: Copy Backend .env to EC2   # ✅ 수정: .env 별도 복사
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "back/.env"
           target: "/home/ubuntu/app"
 
       - name: Run Backend on EC2 with pm2
@@ -63,7 +81,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            mv *.jar app.jar   # ✅ 수정: JAR 이름 불일치 대비 → *.jar 사용
+            mv $(basename ${{ env.JAR_FILE }}) app.jar   # ✅ 자동 추출된 JAR 이름 사용
             export $(cat .env | xargs)   # 🔧 .env 로드
             pm2 delete backend || true
             pm2 start java --name backend -- -jar app.jar    
@@ -84,6 +102,11 @@ jobs:
           npm install
           npm run build -- --no-lint
         working-directory: front
+
+      - name: Debug Frontend Files   # ✅ 추가: 빌드 결과 확인용
+        run: |
+          ls -al front
+          ls -al front/.next || true
 
       - name: Create Frontend .env.production   # 🔧 Secrets 기반으로 덮어쓰기 생성
         run: |
