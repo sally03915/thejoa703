@@ -60,6 +60,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ env.JAR_FILE }}"
           target: "/home/ubuntu/app/app.jar"
+          debug: true
 
       - name: Debug EC2 app directory
         uses: appleboy/ssh-action@v0.1.7
