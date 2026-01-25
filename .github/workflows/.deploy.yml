@@ -5,6 +5,7 @@ on:
     branches:
       - main
 
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -64,14 +65,25 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: mkdir -p /home/ubuntu/app
 
-      - name: Copy Backend JAR to EC2 (고정된 이름 app.jar)
+      - name: Copy Backend JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "${{ env.JAR_FILE }}"
-          target: "/home/ubuntu/app/"
+          target: "/home/ubuntu/app"   # 🔄 변경: target을 디렉터리로 지정
+
+      # 🔄 추가: EC2에서 JAR 파일을 app.jar로 rename
+      - name: Rename JAR on EC2 to app.jar
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            mv $(basename ${{ env.JAR_FILE }}) app.jar
 
       - name: Debug EC2 app directory
         uses: appleboy/ssh-action@v0.1.7
@@ -99,8 +111,9 @@ jobs:
           script: |
             cd /home/ubuntu/app
             pm2 delete backend || true
-            pm2 start java --name backend -- -jar back-0.0.1-SNAPSHOT.jar --spring.config.location=/home/ubuntu/app/.env
-            
+            pm2 start java --name backend -- -jar app.jar --spring.config.location=/home/ubuntu/app/.env
+            # 🔄 변경: 항상 app.jar로 실행되도록 수정
+
   frontend:
     runs-on: ubuntu-latest
     steps:
