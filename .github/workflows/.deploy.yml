@@ -44,8 +44,8 @@ jobs:
           script: |
             cd /home/ubuntu/app
             pm2 delete backend || true
-            pm2 start "java -jar app.jar" --name backend       # 🔧 수정: *.jar 대신 app.jar로 실행
-
+            pm2 start java --name backend -- -jar app.jar    
+            
   frontend:
     runs-on: ubuntu-latest
     steps:
