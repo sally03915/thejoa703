@@ -72,7 +72,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            rm -f app.jar
+            rm -rf app.jar
             mv *.jar app.jar
 
       - name: Copy Backend .env to EC2
