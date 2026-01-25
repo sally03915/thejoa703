@@ -64,19 +64,33 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: mkdir -p /home/ubuntu/app
 
-      # ✅ 변경: 빌드된 JAR를 로컬에서 app.jar로 rename
-      - name: Rename JAR locally to app.jar
-        run: mv ${{ env.JAR_FILE }} back/build/libs/app.jar
+      # ✅ 변경: JAR 파일을 tar로 압축
+      - name: Archive JAR
+        run: |
+          cd back/build/libs
+          mv ${{ env.JAR_FILE }} app.jar
+          tar -czf app.tar.gz app.jar
 
-      # ✅ 변경: EC2로 복사할 때 app.jar만 전송
-      - name: Copy Backend JAR to EC2
+      # ✅ 변경: tar 파일만 전송
+      - name: Copy Backend JAR archive to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "back/build/libs/app.jar"   # 🔄 변경: 항상 app.jar만 복사
+          source: "back/build/libs/app.tar.gz"
           target: "/home/ubuntu/app"
+
+      # ✅ 변경: EC2에서 압축 해제
+      - name: Extract JAR on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/app
+            tar -xzf app.tar.gz
 
       - name: Debug EC2 app directory
         uses: appleboy/ssh-action@v0.1.7
@@ -105,7 +119,6 @@ jobs:
             cd /home/ubuntu/app
             pm2 delete backend || true
             pm2 start java --name backend -- -jar app.jar --spring.config.location=/home/ubuntu/app/.env
-            # 🔄 변경: 항상 app.jar로 실행되도록 유지
 
   frontend:
     runs-on: ubuntu-latest
