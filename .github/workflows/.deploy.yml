@@ -26,12 +26,12 @@ jobs:
         run: ./gradlew build -x test
         working-directory: back
 
-      - name: Debug Backend Files   # ✅ 빌드 결과 확인용
+      - name: Debug Backend Files
         run: |
           ls -al back
           ls -al back/build/libs
 
-      - name: Create Backend .env   # 🔧 GitHub Secrets 기반으로 .env 생성
+      - name: Create Backend .env
         run: |
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" > back/.env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> back/.env
@@ -42,7 +42,7 @@ jobs:
           echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> back/.env
           echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> back/.env
 
-      - name: Ensure app directory exists on EC2   # ✅ 디렉토리 보장
+      - name: Ensure app directory exists on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -51,11 +51,11 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/app
 
-      - name: Find JAR file   # ✅ JAR 파일 자동 추출
+      - name: Find JAR file
         id: findjar
         run: echo "JAR_FILE=$(ls back/build/libs/*.jar | head -n 1)" >> $GITHUB_ENV
 
-      - name: Copy Backend JAR to EC2   # ✅ 자동 추출된 JAR 사용
+      - name: Copy Backend JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -64,7 +64,7 @@ jobs:
           source: "${{ env.JAR_FILE }}"
           target: "/home/ubuntu/app"
 
-      - name: Copy Backend .env to EC2   # ✅ .env 별도 복사
+      - name: Copy Backend .env to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -81,10 +81,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            mv $(basename ${{ env.JAR_FILE }}) app.jar   # ✅ 자동 추출된 JAR 이름 사용
-            export $(cat .env | xargs)   # 🔧 .env 로드
+            mv $(basename ${{ env.JAR_FILE }}) app.jar
+            export $(cat .env | xargs)
             pm2 delete backend || true
-            pm2 start java --name backend -- -jar app.jar    
+            pm2 start java --name backend -- -jar app.jar
 
   frontend:
     runs-on: ubuntu-latest
@@ -97,24 +97,24 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Build Frontend   # ✅ 빌드 자동 실행 추가
+      - name: Build Frontend
         run: |
           npm install
-          npm run build -- --no-lint   # ✅ Next.js 프로덕션 빌드 실행
+          npm run build -- --no-lint
         working-directory: front
 
-      - name: Debug Frontend Files   # ✅ 빌드 결과 확인용
+      - name: Debug Frontend Files
         run: |
           ls -al front
           ls -al front/.next || true
           ls -al front/public || true
-          ls -al front/.next/standalone || true   # ✅ standalone 빌드 확인 추가
+          ls -al front/.next/standalone || true
 
-      - name: Create Frontend .env.production   # 🔧 Secrets 기반으로 덮어쓰기 생성
+      - name: Create Frontend .env.production
         run: |
           echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > front/.env.production
 
-      - name: Ensure front directory exists on EC2   # ✅ 디렉토리 보장
+      - name: Ensure front directory exists on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -123,13 +123,13 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/front
 
-      - name: Copy Frontend build and .env.production to EC2   # ✅ 빌드 산출물 복사
+      - name: Copy Frontend build and .env.production to EC2  # ✅ 수정됨: glob 제거
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "front/.next/**/* front/public/**/* front/package.json front/.env.production"   # ✅ standalone 빌드 시 front/.next/standalone도 포함 가능
+          source: "front/.next front/public front/package.json front/.env.production"  # ✅ 수정됨
           target: "/home/ubuntu/front"
 
       - name: Run Frontend on EC2 with pm2
@@ -142,4 +142,4 @@ jobs:
             cd /home/ubuntu/front
             npm install --production
             pm2 delete frontend || true
-            pm2 start npm --name "frontend" -- run start   # ✅ 빌드된 결과물 기반 실행
+            pm2 start npm --name "frontend" -- run start
