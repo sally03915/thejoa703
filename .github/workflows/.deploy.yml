@@ -83,7 +83,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            mv $(basename ${{ env.JAR_FILE }}) app.jar
+            mv back-0.0.1-SNAPSHOT.jar app.jar
 
       - name: Debug EC2 app directory
         uses: appleboy/ssh-action@v0.1.7
