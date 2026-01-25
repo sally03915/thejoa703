@@ -99,8 +99,8 @@ jobs:
           script: |
             cd /home/ubuntu/app
             pm2 delete backend || true
-            pm2 start java --name backend -- -jar app.jar --spring.config.location=/home/ubuntu/app/.env
-
+            pm2 start java --name backend -- -jar back-0.0.1-SNAPSHOT.jar --spring.config.location=/home/ubuntu/app/.env
+            
   frontend:
     runs-on: ubuntu-latest
     steps:
