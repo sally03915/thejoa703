@@ -68,52 +68,19 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: mkdir -p /home/ubuntu/app
 
-      # ✅ 변경: JAR 파일을 app.jar로 rename 후 tar 압축
-      - name: Archive JAR
-        run: |
-          cd back/build/libs
-          mv $(basename ${{ env.JAR_FILE }}) app.jar
-          tar -czf app.tar.gz app.jar
-          echo "=== tar 파일 생성 확인 ==="
-          ls -lh app.jar app.tar.gz
+      # ✅ 변경: JAR 파일을 app.jar로 rename
+      - name: Rename JAR locally to app.jar
+        run: mv ${{ env.JAR_FILE }} back/build/libs/app.jar
 
-      # ✅ tar 파일 존재 여부 체크
-      - name: Ensure tar exists
-        run: |
-          if [ ! -f "back/build/libs/app.tar.gz" ]; then
-            echo "❌ tar 파일 생성 실패"
-            ls -al back/build/libs
-            exit 1
-          fi
-          echo "✅ tar 파일 생성 완료"
-
-      # ✅ tar 파일만 전송
-      - name: Copy Backend JAR archive to EC2
+      # ✅ 변경: EC2로 app.jar만 전송
+      - name: Copy Backend JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "back/build/libs/app.tar.gz"
+          source: "back/build/libs/app.jar"
           target: "/home/ubuntu/app"
-
-      # ✅ EC2에서 압축 해제
-      - name: Extract JAR on EC2
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/app
-            ls -lh
-            if [ ! -f "app.tar.gz" ]; then
-              echo "❌ EC2에 app.tar.gz 없음"
-              exit 1
-            fi
-            tar -xzf app.tar.gz
-            echo "✅ 압축 해제 완료"
-            ls -lh
 
       - name: Debug EC2 app directory
         uses: appleboy/ssh-action@v0.1.7
@@ -142,7 +109,6 @@ jobs:
             cd /home/ubuntu/app
             pm2 delete backend || true
             pm2 start java --name backend -- -jar app.jar --spring.config.location=/home/ubuntu/app/.env
-
 
   frontend:
     runs-on: ubuntu-latest
