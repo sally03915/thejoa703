@@ -68,8 +68,9 @@ jobs:
       - name: Archive JAR
         run: |
           cd back/build/libs
-          mv ${{ env.JAR_FILE }} app.jar
+          mv $(basename ${{ env.JAR_FILE }}) app.jar   # ✅ 현재 디렉터리 기준으로 파일명만 사용
           tar -czf app.tar.gz app.jar
+
 
       # ✅ 변경: tar 파일만 전송
       - name: Copy Backend JAR archive to EC2
