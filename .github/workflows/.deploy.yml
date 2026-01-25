@@ -107,6 +107,7 @@ jobs:
         run: |
           ls -al front
           ls -al front/.next || true
+          ls -al front/public || true
 
       - name: Create Frontend .env.production   # 🔧 Secrets 기반으로 덮어쓰기 생성
         run: |
@@ -121,13 +122,13 @@ jobs:
           script: |
             mkdir -p /home/ubuntu/front
 
-      - name: Copy Frontend project and .env.production to EC2   # ✅ 수정: 쉼표 → 공백
+      - name: Copy Frontend build and .env.production to EC2   # ✅ 수정: 빌드 산출물(.next, public, package.json) 포함
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "front/* front/.env.production"   # ✅ 수정된 부분
+          source: "front/.next/** front/public/** front/package.json front/.env.production"   # ✅ 수정된 부분
           target: "/home/ubuntu/front"
 
       - name: Run Frontend on EC2 with pm2
