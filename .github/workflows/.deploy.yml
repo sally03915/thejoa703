@@ -134,7 +134,7 @@ jobs:
         run: |
           echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > front/.env.production
 
-      # 빌드 전에 .env.production이 반영되도록 순서 조정
+      # 빌드 전에 .env.production이 반영되도록 순서 조정 
       - name: Build Frontend
         run: |
           npm install

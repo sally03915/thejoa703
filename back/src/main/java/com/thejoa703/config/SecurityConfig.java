@@ -100,7 +100,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
 
         // 운영 환경 (nginx 통해 접근하는 실제 서비스 주소)
-        configuration.addAllowedOrigin("http://54.180.118.63");
+        configuration.addAllowedOrigin("http://52.79.239.166");
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
