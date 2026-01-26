@@ -35,7 +35,8 @@ jobs:
 
       # 🔧 변경 없음: JAR 찾기 단계는 그대로 둬도 되지만, 사실 app.jar만 쓰면 단순화 가능
       - name: Find JAR file
-        run: echo "JAR_FILE=$(ls back/build/libs/app.jar)" >> $GITHUB_ENV
+        run: echo "JAR_FILE=$(ls back/build/libs/*SNAPSHOT.jar | grep -v plain | head -n 1)" >> $GITHUB_ENV
+        #run: echo "JAR_FILE=$(ls back/build/libs/app.jar)" >> $GITHUB_ENV
         # 🔧 여기서 plain JAR가 아니라 app.jar만 선택하도록 고정
 
       - name: Debug JAR_FILE
