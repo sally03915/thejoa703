@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/XE
+    url: jdbc:oracle:thin:@localhost:1521:XE
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: oracle.jdbc.OracleDriver
@@ -13,7 +13,7 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true 
-        dialect: org.hibernate.dialect.OracleDialect
+        dialect: org.hibernate.dialect.Oracle10gDialect
 
   servlet:
     multipart:
@@ -48,3 +48,6 @@ file:
 
 server:
   port: 8484
+
+jackson:
+  time-zone: UTC
