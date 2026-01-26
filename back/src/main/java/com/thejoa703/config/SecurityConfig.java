@@ -74,7 +74,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/posts/search/hashtag").permitAll()  
                 .requestMatchers("/api/posts/paged").permitAll() 
                 // /api/요청은 JWT 인증 필요
-                .requestMatchers("/api/**").authenticated()
+                //.requestMatchers("/api/**").authenticated()
                 // 나머지는 모두 허용
                 .anyRequest().permitAll()
             )
@@ -97,10 +97,10 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 개발 환경 (React/Next.js 로컬 실행)
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000" , "http://15.164.224.222"));
 
         // 운영 환경 (nginx 통해 접근하는 실제 서비스 주소)
-        configuration.addAllowedOrigin("http://15.164.224.222");
+        
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
