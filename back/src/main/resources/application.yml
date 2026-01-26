@@ -13,7 +13,7 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true 
-        dialect: org.hibernate.dialect.OracleLegacyDialect
+        dialect: org.hibernate.dialect.Oracle11gDialect
 
   servlet:
     multipart:
