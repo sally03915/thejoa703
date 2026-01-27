@@ -8,7 +8,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # dev 환경에서는 update, test 환경에서는 create-drop 권장        
+      ddl-auto: update   # dev 환경에서는 update, test 환경에서는 create-drop 권장            
     properties:
       hibernate:
         format_sql: true
