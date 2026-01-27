@@ -23,7 +23,7 @@ jobs:
         working-directory: back
 
       - name: Build Spring Boot App
-        run: ./gradlew build -x test
+        run: ./gradlew clean build -x test
         working-directory: back
 
       - name: Debug Backend Files
