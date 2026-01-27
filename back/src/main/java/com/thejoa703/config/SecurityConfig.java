@@ -65,7 +65,7 @@ public class SecurityConfig {
                     "/auth/**", "/login/**", "/oauth2/**",  
                     "/swagger-ui/**", "/v3/api-docs/**",
                     "/swagger-resources/**", "/webjars/**",
-                    "/configuration/**", "/upload/**"  , "/api/deptusers/**" , "/api/likes/**" 
+                    "/configuration/**", "/uploads/**"  , "/api/deptusers/**" , "/api/likes/**" 
                 ).permitAll()
                 // 전체조회만 허용
                 .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()   
