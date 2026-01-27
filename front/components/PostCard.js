@@ -32,7 +32,7 @@ export default function PostCard({
     : post?.hashtags ? [post?.hashtags] : [];
  
   const isFollowing = followingsMap?.[String(post?.authorId)] === true;
-
+   
   return (
     <Card style={{ marginBottom: "30px", borderRadius: "12px" }}>
       <List.Item>

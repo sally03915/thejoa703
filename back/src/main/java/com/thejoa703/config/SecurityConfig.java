@@ -98,7 +98,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 개발 환경 (React/Next.js 로컬 실행)
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000" , "http://13.209.40.188"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000" , "http://13.209.41.174"));
 
         // 운영 환경 (nginx 통해 접근하는 실제 서비스 주소)
         
