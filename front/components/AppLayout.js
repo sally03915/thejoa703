@@ -57,7 +57,7 @@ function AppLayout({ children, initialUser }){
     // 로그아웃
     const handleLogout = async()=>{
         try{
-            await  axios.post("/auth/logout");
+            await  axios.post("/api/auth/logout");
             if(typeof window !== "undefined"){
                 localStorage.removeItem("accessToken");
             }
