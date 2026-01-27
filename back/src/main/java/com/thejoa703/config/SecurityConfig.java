@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 // Swagger, 인증 관련 경로는 모두 허용     , /api/auth/**    ,    /oauth2/**
                 .requestMatchers(
-                    "/auth/**", "/login/**", "/oauth2/**",
+                    "/auth/**", "/login/**", "/oauth2/**",  
                     "/swagger-ui/**", "/v3/api-docs/**",
                     "/swagger-resources/**", "/webjars/**",
                     "/configuration/**", "/upload/**"  , "/api/deptusers/**" , "/api/likes/**" 
@@ -75,7 +75,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/posts/search/hashtag").permitAll()  
                 .requestMatchers("/api/posts/paged").permitAll() 
                 // /api/요청은 JWT 인증 필요
-                //.requestMatchers("/api/**").authenticated()
+                .requestMatchers("/api/**").authenticated()
                 // 나머지는 모두 허용
                 .anyRequest().permitAll()
             )
