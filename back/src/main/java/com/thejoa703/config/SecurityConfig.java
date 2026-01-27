@@ -59,8 +59,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // 권한 설정
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Swagger, 인증 관련 경로는 모두 허용
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
+                // Swagger, 인증 관련 경로는 모두 허용     , /api/auth/**    ,    /oauth2/**
                 .requestMatchers(
                     "/api/auth/**", "/login/**", "/oauth2/**",
                     "/swagger-ui/**", "/v3/api-docs/**",
