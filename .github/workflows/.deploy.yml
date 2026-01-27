@@ -123,8 +123,8 @@ jobs:
             cd /home/ubuntu/app/back/build/libs
             pm2 delete backend || true
             export $(cat /home/ubuntu/app/.env | xargs)
-            pm2 start java --name backend -- -jar back-0.0.1-SNAPSHOT.jar
-            # 🔧 app.jar 없이 build/libs 안의 fat JAR을 직접 실행
+            pm2 start java --name backend -- -jar ${{ env.JAR_FILE }}
+
 
 
   frontend:
