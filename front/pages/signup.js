@@ -58,7 +58,7 @@ export default function SignupPage(){
                                 try {
                                     //서버에 이메일 중복여부확인
                                 const res = await axios.get(
-                                    `/api/auth/check-email?email=${encodeURIComponent(value)}`
+                                    `/auth/check-email?email=${encodeURIComponent(value)}`
                                 );
                                 // 서버응답이 true라면  → 이미 사용중인 이메일
                                 if (res?.data === true) {
@@ -99,7 +99,7 @@ export default function SignupPage(){
                                 if (!value) return Promise.resolve();
                                 try {
                                 const res = await axios.get(
-                                    `/api/auth/check-nickname?nickname=${encodeURIComponent(value)}`
+                                    `/auth/check-nickname?nickname=${encodeURIComponent(value)}`
                                 );
                                 if (res?.data === true) {
                                     return Promise.reject(

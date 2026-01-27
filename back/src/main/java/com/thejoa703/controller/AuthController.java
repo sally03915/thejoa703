@@ -42,7 +42,7 @@ import lombok.RequiredArgsConstructor;
  
 @Tag(name = "Auth", description = "회원 인증 관련 API (Oracle 호환)")   //Swagger 태그
 @RestController  // REST API 컨트롤러 선언
-@RequestMapping("/api/auth") //   기본URL   /auth
+@RequestMapping("/auth") //   기본URL   /auth
 @RequiredArgsConstructor //   final 필드가 자동생성자 주입
 public class AuthController {
 

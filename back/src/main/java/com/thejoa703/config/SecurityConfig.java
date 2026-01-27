@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 // Swagger, 인증 관련 경로는 모두 허용     , /api/auth/**    ,    /oauth2/**
                 .requestMatchers(
-                    "/api/auth/**", "/login/**", "/oauth2/**",
+                    "/auth/**", "/login/**", "/oauth2/**",
                     "/swagger-ui/**", "/v3/api-docs/**",
                     "/swagger-resources/**", "/webjars/**",
                     "/configuration/**", "/upload/**"  , "/api/deptusers/**" , "/api/likes/**" 
