@@ -11,8 +11,8 @@ module.exports = {
         destination: 'http://localhost:8080/auth/:path*', // 백엔드 주소
       },
       {
-        source: '/oauth/:path*',
-        destination: 'http://localhost:8080/oauth/:path*', // 백엔드 주소
+        source: '/oauth2/:path*',
+        destination: 'http://localhost:8080/oauth2/:path*', // 백엔드 주소
       },
     ]
   },
