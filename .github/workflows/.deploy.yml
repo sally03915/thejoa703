@@ -201,3 +201,71 @@ jobs:
             npm install --production
             pm2 delete frontend || true
             pm2 start npm --name "frontend" -- run start
+
+  legacy-boot:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. JDK 11 설정
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      # 3. Maven 빌드
+      - name: Build Legacy Boot App
+        run: mvn clean package -DskipTests
+        working-directory: legacy-boot
+
+      # 4. Secrets에서 .env 복원
+      - name: Restore .env from Secrets
+        run: |
+          echo "${{ secrets.LEGACY_ENV }}" > legacy-boot/.env
+
+      # 5. EC2에 디렉토리 생성
+      - name: Ensure legacy-boot directory exists on EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: mkdir -p /home/ubuntu/legacy-boot/target
+
+      # 6. 빌드된 JAR 파일 복사
+      - name: Copy Legacy Boot JAR to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "legacy-boot/target/*.jar"
+          target: "/home/ubuntu/legacy-boot/target"
+
+      # 7. .env 파일 복사
+      - name: Copy Legacy Boot .env to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "legacy-boot/.env"
+          target: "/home/ubuntu/legacy-boot"
+
+      # 8. pm2로 실행 (target 안의 JAR 사용)
+      - name: Run Legacy Boot on EC2 with pm2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/legacy-boot
+            pm2 delete legacy-boot || true
+            export $(cat .env | xargs)
+            JAR_FILE=$(ls target/*.jar | head -n 1)
+            pm2 start java --name legacy-boot -- -jar $JAR_FILE
+
