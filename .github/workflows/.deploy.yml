@@ -221,7 +221,7 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: legacy-boot
 
-      # 4. Secrets에서 .env 복원 (CI 러너 내부에 생성)
+      # 4. Secrets에서 .env 복원 (CI 러너 내부에 파일로 생성)
       - name: Restore .env from Secrets
         run: |
           echo "${{ secrets.LEGACY_ENV }}" > legacy-boot/.env
@@ -234,7 +234,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script: mkdir -p /home/ubuntu/legacy-boot
+          script: mkdir -p /home/ubuntu/legacy-boot/target
 
       # 6. 빌드된 JAR 파일 복사
       - name: Copy Legacy Boot JAR to EC2
@@ -244,10 +244,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "legacy-boot/target/*.jar"
-          target: "/home/ubuntu/legacy-boot"
-          # ⬆️ JAR을 EC2의 /home/ubuntu/legacy-boot/ 에 직접 복사
+          target: "/home/ubuntu/legacy-boot/target/"
+          # ⬆️ JAR을 EC2의 target 디렉토리에 직접 복사
 
-      # 7. .env 파일 복사 (확실히 EC2에 반영되도록 수정)
+      # 7. .env 파일 복사 (파일로 확실히 반영)
       - name: Copy Legacy Boot .env to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -255,11 +255,11 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "legacy-boot/.env"
-          target: "/home/ubuntu/legacy-boot/.env"
-          # ⬆️ target을 디렉토리 대신 파일 경로로 지정하여
-          # EC2에 /home/ubuntu/legacy-boot/.env 파일이 정확히 생성되도록 변경
+          target: "/home/ubuntu/legacy-boot/"
+          # ⬆️ target을 디렉토리로만 지정하여
+          # EC2에 /home/ubuntu/legacy-boot/.env 파일이 정상적으로 생성되도록 변경
 
-      # 8. pm2로 실행 (target 안에서 실행하도록 수정)
+      # 8. pm2로 실행 (루트에서 실행 → 경로 꼬임 방지)
       - name: Run Legacy Boot on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -267,8 +267,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/legacy-boot/target   # ⬅️ target 디렉토리로 이동
+            cd /home/ubuntu/legacy-boot        # ⬅️ 루트 디렉토리에서 실행 시작
             pm2 delete legacy-boot || true
-            export $(cat ../.env | xargs)        # ⬅️ .env는 상위 디렉토리에 있으니 ../.env 로 읽음
-            pm2 start "java -jar boot001-0.0.1-SNAPSHOT.jar" --name legacy-boot
+            export $(cat .env | xargs)         # ⬅️ 같은 디렉토리의 .env 파일 로드
+            JAR_FILE=$(ls target/*.jar | head -n 1)   # ⬅️ target 안의 JAR 자동 탐색
+            pm2 start "java -jar $JAR_FILE" --name legacy-boot
+
 
