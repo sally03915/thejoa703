@@ -164,7 +164,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: mkdir -p /home/ubuntu/front
 
-      # 빌드 결과물(.next, public, package.json,   .env.production)을 압축   
+      # 빌드 결과물(.next, public, package.json,   .env.production)을 압축     
       - name: Archive frontend build
         run: |
           cd front
