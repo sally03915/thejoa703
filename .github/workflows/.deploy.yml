@@ -280,7 +280,8 @@ jobs:
             pm2 delete legacy-boot || true
             export $(cat .env | xargs)   # .env 파일 로드
             JAR_FILE=$(ls target/*.jar | head -n 1)
-            pm2 start "java -Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=Asia/Seoul -jar $JAR_FILE" --name legacy-boot
+            pm2 start --interpreter none --name legacy-boot -- \
+              java -Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=Asia/Seoul -jar $JAR_FILE
 
 
 
