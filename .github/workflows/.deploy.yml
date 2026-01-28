@@ -237,7 +237,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: mkdir -p /home/ubuntu/legacy-boot/target
 
-      # 6. 빌드된 JAR 파일 복사
+      # 6. 빌드된 JAR 파일 복사 (경로 중첩 방지 → strip_components 사용)
       - name: Copy Legacy Boot JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -246,6 +246,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "legacy-boot/target/*.jar"
           target: "/home/ubuntu/legacy-boot/target/"
+          strip_components: 2   # legacy-boot/target 경로 제거 후 JAR만 복사
 
       # 7. 기존 .env 디렉토리 삭제 (있으면 제거)
       - name: Remove existing .env directory on EC2
@@ -267,7 +268,7 @@ jobs:
           target: "/home/ubuntu/legacy-boot/"
           # ⬆️ target을 디렉토리로 지정 → EC2에 /home/ubuntu/legacy-boot/.env 파일 생성
 
-      # 9. pm2로 실행
+      # 9. pm2로 실행 (interpreter 방식으로 JAR 실행)
       - name: Run Legacy Boot on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -279,4 +280,4 @@ jobs:
             pm2 delete legacy-boot || true
             export $(cat .env | xargs)   # .env 파일 로드
             JAR_FILE=$(ls target/*.jar | head -n 1)
-            pm2 start "java -jar $JAR_FILE" --name legacy-boot
+            pm2 start $JAR_FILE --interpreter=java -- --name legacy-boot -jar
