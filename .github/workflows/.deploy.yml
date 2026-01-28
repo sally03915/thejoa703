@@ -205,7 +205,7 @@ jobs:
   legacy-boot:
     runs-on: ubuntu-latest
     steps:
-      # 1. 코드 체크아웃            
+      # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -254,11 +254,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            if [ -d /home/ubuntu/legacy-boot/.env ]; then
-              echo "Removing existing .env directory..."
-              rm -rf /home/ubuntu/legacy-boot/.env
-            fi
+          script: rm -rf /home/ubuntu/legacy-boot/.env
 
       # 8. .env 파일 복사 (파일로 확실히 반영)
       - name: Copy Legacy Boot .env to EC2
@@ -268,7 +264,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: ".env"
-          target: "/home/ubuntu/legacy-boot/.env"
+          target: "/home/ubuntu/legacy-boot/"
+          # ⬆️ target을 디렉토리로 지정 → EC2에 /home/ubuntu/legacy-boot/.env 파일 생성
 
       # 9. pm2로 실행
       - name: Run Legacy Boot on EC2 with pm2
