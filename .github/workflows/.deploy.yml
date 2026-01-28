@@ -221,14 +221,14 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: legacy-boot
 
-      # 4. Secrets에서 .env 복원 (CI 러너 내부에 파일로 생성)
+      # 4. Secrets에서 .env 복원 (CI 러너 루트에 파일 생성)
       - name: Restore .env from Secrets
         run: |
-          echo "${{ secrets.LEGACY_ENV }}" > legacy-boot/.env
-          ls -al legacy-boot/.env   # 파일인지 확인용 로그
-          head -n 5 legacy-boot/.env   # 내용 일부 확인 (마스킹됨)
+          echo "${{ secrets.LEGACY_ENV }}" > .env
+          ls -al .env   # 파일인지 확인용 로그
+          head -n 5 .env   # 내용 일부 확인 (마스킹됨)
 
-      # 5. EC2에 디렉토리 생성
+      # 5. EC2에 target 디렉토리 생성
       - name: Ensure legacy-boot directory exists on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -267,9 +267,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "legacy-boot/.env"
-          target: "/home/ubuntu/legacy-boot/"
-
+          source: ".env"
+          target: "/home/ubuntu/legacy-boot/.env"
 
       # 9. pm2로 실행
       - name: Run Legacy Boot on EC2 with pm2
