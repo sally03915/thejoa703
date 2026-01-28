@@ -280,4 +280,5 @@ jobs:
             pm2 delete legacy-boot || true
             export $(cat .env | xargs)   # .env 파일 로드
             JAR_FILE=$(ls target/*.jar | head -n 1)
-            pm2 start $JAR_FILE --interpreter=java -- --name legacy-boot -jar
+            pm2 start $JAR_FILE --interpreter=java --name legacy-boot -- -jar
+
