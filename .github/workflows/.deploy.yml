@@ -268,7 +268,7 @@ jobs:
           target: "/home/ubuntu/legacy-boot/"
           # ⬆️ target을 디렉토리로 지정 → EC2에 /home/ubuntu/legacy-boot/.env 파일 생성
 
-      # 9. pm2로 실행 (interpreter 방식으로 JAR 실행)
+      # 9. pm2로 실행 (타임존 옵션 포함)
       - name: Run Legacy Boot on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -280,6 +280,7 @@ jobs:
             pm2 delete legacy-boot || true
             export $(cat .env | xargs)   # .env 파일 로드
             JAR_FILE=$(ls target/*.jar | head -n 1)
-            pm2 start "java -jar $JAR_FILE" --name legacy-boot --env TZ=Asia/Seoul
+            pm2 start "java -Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=Asia/Seoul -jar $JAR_FILE" --name legacy-boot
+
 
 
