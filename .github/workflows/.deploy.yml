@@ -270,6 +270,7 @@ jobs:
           source: "legacy-boot/.env"
           target: "/home/ubuntu/legacy-boot/.env"
 
+
       # 9. pm2로 실행
       - name: Run Legacy Boot on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
