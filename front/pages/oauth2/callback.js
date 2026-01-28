@@ -24,7 +24,7 @@ export default function OAuth2CallbackPage(){
     
     const fetchUser = async(accessToken)=>{  //##
         try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/me`, { //boot 경로
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/me`, { //boot 경로
             headers: { Authorization: `Bearer ${accessToken}` },
             credentials: "include",  // refreshToken 쿠키와 함께 전송
         });
