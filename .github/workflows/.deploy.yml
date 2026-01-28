@@ -221,10 +221,11 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: legacy-boot
 
-      # 4. Secrets에서 .env 복원
+      # 4. Secrets에서 .env 복원 (CI 러너 내부에 생성)
       - name: Restore .env from Secrets
         run: |
           echo "${{ secrets.LEGACY_ENV }}" > legacy-boot/.env
+          cat legacy-boot/.env   # ⬅️ 확인용 로그 출력 (선택)
 
       # 5. EC2에 디렉토리 생성
       - name: Ensure legacy-boot directory exists on EC2
@@ -244,10 +245,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "legacy-boot/target/*.jar"
           target: "/home/ubuntu/legacy-boot"
-          # ⬆️ 수정: 원래 target 디렉토리 안에 또 target을 만들었는데,
-          # 이제 JAR을 바로 /home/ubuntu/legacy-boot/ 에 복사하도록 변경
+          # ⬆️ JAR을 EC2의 /home/ubuntu/legacy-boot/ 에 직접 복사
 
-      # 7. .env 파일 복사
+      # 7. .env 파일 복사 (확실히 EC2에 반영되도록 수정)
       - name: Copy Legacy Boot .env to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -255,7 +255,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "legacy-boot/.env"
-          target: "/home/ubuntu/legacy-boot"
+          target: "/home/ubuntu/legacy-boot/.env"
+          # ⬆️ target을 디렉토리 대신 파일 경로로 지정하여
+          # EC2에 /home/ubuntu/legacy-boot/.env 파일이 정확히 생성되도록 변경
 
       # 8. pm2로 실행 (JAR 직접 사용)
       - name: Run Legacy Boot on EC2 with pm2
@@ -270,4 +272,3 @@ jobs:
             export $(cat .env | xargs)
             JAR_FILE=$(ls *.jar | head -n 1)
             pm2 start java --name legacy-boot -- -jar $JAR_FILE
-            # ⬆️ 수정: JAR_FILE을 target/*.jar가 아니라 현재 디렉토리(/home/ubuntu/legacy-boot/*.jar)에서 찾도록 변경
