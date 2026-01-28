@@ -30,7 +30,7 @@ import com.thejoa703.external.SongCrawling;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/legacy/api")
 public class ApiController {
 
 	///////////////////////// ChatGpt

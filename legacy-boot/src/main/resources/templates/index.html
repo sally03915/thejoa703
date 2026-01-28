@@ -31,7 +31,7 @@
 						<!-- 제목과 링크 추가 -->
 						<div class="carousel-caption d-none d-md-block">
 							<h2>
-								<a th:href="@{/board/detail(id=${dto.id})}" th:text="${dto.btitle}"
+								<a th:href="@{/legacy/board/detail(id=${dto.id})}" th:text="${dto.btitle}"
 								   style="color: #ffcc00; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); text-decoration: none;"></a>
 							</h2>
 							<p th:text="${dto.bcontent}"></p>
@@ -54,7 +54,7 @@
 			<div class="row">
 				<div class="col-sm-4  mb-4"   th:each="dto, stat : ${imglist}"  th:if="${stat.index < 3}">
 					<div class="gallery-item">
-					    <a th:href="@{/board/detail(id=${dto.id})}"  >
+					    <a th:href="@{/legacy/board/detail(id=${dto.id})}"  >
 						<img  th:src="@{'/upload/' + ${dto.bfile}}"  
 							  th:alt="${dto.btitle}"  
 							  class="img-fluid  rounded-circle  img-thumbnail  d-block mx-auto"

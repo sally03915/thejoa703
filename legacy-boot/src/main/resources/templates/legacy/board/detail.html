@@ -38,12 +38,12 @@
 	    <img  th:src="@{'/upload/'+${dto.bfile}}" class="img-fluid  rounded  border mb-3"  alt="" />
 	  </div> 
 		<div class="mb-3">
-			<a th:href="@{/board/edit(id=${dto.id})}" class="btn btn-success form-control">글수정</a>
+			<a th:href="@{/legacy/board/edit(id=${dto.id})}" class="btn btn-success form-control">글수정</a>
 		</div>
 		<div class="mb-3">
-			<a th:href="@{/board/delete(id=${dto.id})}" class="btn btn-secondary form-control">글삭제</a>
+			<a th:href="@{/legacy/board/delete(id=${dto.id})}" class="btn btn-secondary form-control">글삭제</a>
 		</div>   
-	  <div class="mb-3"> <a th:href="@{/board/list}" class="btn btn-primary form-control">목록보기</a></div>
+	  <div class="mb-3"> <a th:href="@{/legacy/board/list}" class="btn btn-primary form-control">목록보기</a></div>
  </div>
 </div> 
 </div>

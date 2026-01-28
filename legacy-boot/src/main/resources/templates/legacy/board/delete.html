@@ -11,7 +11,7 @@
 <div layout:fragment="content">
 <div class="container p-5">
      <h3 class="card-header"> MBTI 글삭제</h3> 
-  <form th:action="@{/board/delete}"  method="post">  
+  <form th:action="@{/legacy/board/delete}"  method="post">  
       <input type="hidden"   name="id"  th:value="${param.id}"> 
 	  <div class="my-3">
 	    <label for="bpass" class="form-label">PASS:</label>

@@ -30,7 +30,7 @@
 				<td th:text="${paging.listtotal - ((paging.current-1)* paging.onepagelist)   -  i.index}"></td>
 				<!-- <td th:text="${list.size()-i.index}"></td> -->
 				<td>
-					<a th:href="@{/board/detail(id=${dto.id})}"   
+					<a th:href="@{/legacy/board/detail(id=${dto.id})}"   
 					   th:text="${dto.btitle}"  ></a>
 				</td>
 				<td th:text="${dto.appUserId}"></td>
@@ -45,7 +45,7 @@
 		    <!--  1    -  이전(1)11     -  이전(11)21 -->
 			<li  class="page-item"  th:if="${paging.start > 1}">
 				<a 	class="page-link"
-					th:href="@{/board/list(pageNo=${paging.start - paging.bottomlist})}">이전</a>
+					th:href="@{/legacy/board/list(pageNo=${paging.start - paging.bottomlist})}">이전</a>
 			</li>
 		    
 		    <!-- 1,2,3,4,5,6,7,8,9,10 -->
@@ -53,19 +53,19 @@
 				th:each="pageNum :${#numbers.sequence(paging.start , paging.end)}"
 			    th:classappend="${pageNum == paging.current} ? 'active' ">
 				<a class="page-link"
-				   th:href="@{/board/list(pageNo=${pageNum})}"    
+				   th:href="@{/legacy/board/list(pageNo=${pageNum})}"    
 				   th:text="${pageNum}"></a>
 			</li>
 		    
 		    <!--   10 다음(11)    20다음(21)  -->
 			<li  class="page-item"  th:if="${paging.end < paging.pagetotal}">
 				<a 	class="page-link"
-					th:href="@{/board/list(pageNo=${paging.start + paging.bottomlist})}">다음</a>
+					th:href="@{/legacy/board/list(pageNo=${paging.start + paging.bottomlist})}">다음</a>
 			</li>
 		</ul>
 	</nav>
-	<p class="text-end"> <a  th:href="@{/board/write}" class="btn btn-primary">글쓰기</a> </p>
-	<p class="text-end alert alert-primary">로그인을 하면 글쓰기가능합니다.</p> 
+	<p class="text-end"> <a  th:href="@{/legacy/board/write}" class="btn btn-primary">글쓰기</a> </p>
+	<!-- <p class="text-end alert alert-primary">로그인을 하면 글쓰기가능합니다.</p>  -->
 	
 	<!-- 검색 part -->		
 	<!-- 검색 part -->		 

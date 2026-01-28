@@ -28,7 +28,7 @@ import com.thejoa703.security.CustomUserDetails;
 import com.thejoa703.service.AppUserService;
 
 @Controller
-@RequestMapping("/users")
+@RequestMapping("/legacy/users")
 public class UserController {
 
 	@Autowired
@@ -46,7 +46,7 @@ public class UserController {
 	} 
 	//http://localhost:8484/boot001/users/join
 	@GetMapping("/join")
-	public String joinForm() {  return "users/join"; }
+	public String joinForm() {  return "legacy/users/join"; }
 	
 	@PostMapping("/join")
 	public String join( @RequestParam(value="file" , required=false) MultipartFile file
@@ -54,22 +54,22 @@ public class UserController {
 		  try {	
 			int result = userService.insert(file, dto);
 			rttr.addFlashAttribute("successMessage" , result > 0? "회원가입 성공!" : "회원가입 실패");
-			return "redirect:/users/login";
+			return "redirect:/legacy/users/login";
 		  }catch(Exception e) { 
 				rttr.addFlashAttribute("errorMessage" ,  "회원가입 실패: " +  e.getMessage());
-				return "redirect:/users/join";
+				return "redirect:/legacy/users/join";
 		  }
 	}
 	
 
 	/* 로그인 : 폼 , 성공, 실패 */
 	@GetMapping("/login")
-	public String loginForm() { return "users/login"; }
+	public String loginForm() { return "legacy/users/login"; }
 	
 	@GetMapping("/fail")
 	public String loginFail(Model model) {
 		model.addAttribute("errorMessage" , "로그인 실패: 아이디 또는 비밀번호를 확인하세요.");
-		return "users/login";
+		return "/legacy/users/login";
 	}
 	//////////////////////////////////////////////////////////
 	/* 마이페이지 */	
@@ -101,7 +101,7 @@ public class UserController {
 			dto.setEmail(email);  dto.setProvider(provider);
 		} 
 		model.addAttribute("dto" , dto);
-		return "users/mypage"; 
+		return "/legacy/users/mypage"; 
 	}
 
 	//////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ public class UserController {
 		} 
 		AppUserDto dto = userService.selectEmail(email, provider);
 		model.addAttribute("dto" , dto); 
-		return "users/update"; 
+		return "/legacy/users/update"; 
 	} 
 	
 	@PreAuthorize("isAuthenticated()")
@@ -128,7 +128,7 @@ public class UserController {
 				, AppUserDto dto ,  RedirectAttributes rttr ) {
 		int result = userService.update(file, dto);
 		rttr.addFlashAttribute("successMessage" , result> 0? "회원정보 수정 성공" : "회원정보 수정 실패");
-		return "redirect:/users/mypage"; 
+		return "redirect:/legacy/users/mypage"; 
 	}
 
 
@@ -153,7 +153,7 @@ public class UserController {
 		}
 		AppUserDto dto = userService.selectEmail(email, provider);
 		model.addAttribute("dto" , dto); 
-		return "users/delete"; 
+		return "legacy/users/delete"; 
 	}
 	 
 	@PreAuthorize("isAuthenticated()")
@@ -182,21 +182,21 @@ public class UserController {
 		if(requirePasswordCheck) {
 			if(dto.getPassword() == null ||  dto.getPassword().isEmpty()) {
 				rttr.addFlashAttribute("errorMessage" , "회원탈퇴 실패: 비밀번호를 입력해주세요");
-				return "redirect:/users/delete";
+				return "redirect:/legacy//users/delete";
 			} 
 			if( !userService.matchesPassword(email, provider,  dto.getPassword() )) {
 				rttr.addFlashAttribute("errorMessage" , "회원탈퇴 실패: 비밀번호가 일치하지 않습니다.");
-				return "redirect:/users/delete";
+				return "redirect:/legacy/users/delete";
 			}
 		}
 		if( userService.delete(dto, requirePasswordCheck) > 0  ) {  //requirePasswordCheck = true  'local'  유저정보삭제
 			Authentication  auth = SecurityContextHolder.getContext().getAuthentication();
 			if(auth != null) {  new SecurityContextLogoutHandler().logout(request, response, auth);  }
 			rttr.addFlashAttribute("successMessage" , "회원탈퇴가 완료되었습니다.");
-			return "redirect:/users/login";
+			return "redirect:/legacy/users/login";
 		} else {
 			rttr.addFlashAttribute("errorMessage" , "회원탈퇴 실패: 관리자에게 문의해주세요.");
-			return "redirect:/users/delete";
+			return "redirect:/legacy/users/delete";
 		} 
 	}
 
