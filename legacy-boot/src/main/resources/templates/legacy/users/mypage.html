@@ -25,10 +25,10 @@
 						<tr>
 							<td  rowspan="4"  class="text-center fw-bold fs-3 table-primary"   style="width: 25%;">
 								<img  th:if="${dto != null  and  dto.ufile != null}"
-									  th:src="@{'/upload/' + ${dto.ufile}}"  style="width:300px"/>
+									  th:src="@{'/legacy/upload/' + ${dto.ufile}}"  style="width:300px"/>
 									  
 								<img  th:if="${dto == null  or  dto.ufile == null}"
-									  th:src="@{'/upload/no.png'}"  style="width:300px"/>	  
+									  th:src="@{'/legacy/upload/no.png'}"  style="width:300px"/>	  
 							</td>
 						</tr>
 						<tr>
