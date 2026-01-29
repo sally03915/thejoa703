@@ -74,7 +74,7 @@ public class Sboard2Controller {
 	@GetMapping("/detail")
 	public String detail(int id , Model model) {
 		model.addAttribute("dto", service.select(id));  
-		return "/legacy/board/detail";  
+		return "legacy/board/detail";  
 	}
 	//    /board/edit   (수정폼)
 	@GetMapping("/edit")
