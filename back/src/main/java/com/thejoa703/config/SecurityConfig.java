@@ -81,6 +81,7 @@ public class SecurityConfig {
             )
             // Oauth2 로그인은 소셜로그인 전용
             .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2SuccessHandler))
+            
             // JWT 필터 추가
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
