@@ -15,7 +15,7 @@ public class UtilUpload  {
 	@Value("${resource.path}") private String resourcePath; //    C:/upload
     // org.springframework.beans.factory.annotation.Value
 	
-    private final Path root = Paths.get("uploads");  // 프로젝트 실행위치 기준으로 uploads 폴더 생성
+    private final Path root = Paths.get(resourcePath);  // 프로젝트 실행위치 기준으로 uploads 폴더 생성
 
 	public String fileUpload(  MultipartFile file) throws IOException {
 		
