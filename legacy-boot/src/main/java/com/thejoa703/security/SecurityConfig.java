@@ -48,6 +48,7 @@ public class SecurityConfig {
 		    .oauth2Login(oauth2 -> oauth2
 			     .loginPage("/legacy/users/login")  // ← 로그인폼 통합
 			     .defaultSuccessUrl("/legacy/users/mypage" , true) // ← 로그인성공시 경로
+			     .redirectionEndpoint(endpoint -> endpoint.baseUri("/legacy/login/oauth2/code/*"))  //################
 			     .userInfoEndpoint(userInfo -> userInfo.userService(oauth2IUserService))
 		    )
 		     /* 4. csrf 예외처리 */
