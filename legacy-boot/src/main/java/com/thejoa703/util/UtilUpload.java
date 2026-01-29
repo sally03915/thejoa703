@@ -15,12 +15,19 @@ public class UtilUpload  {
     // org.springframework.beans.factory.annotation.Value
 
 	public String fileUpload(  MultipartFile file) throws IOException {
-		//1. 파일이름중복안되게
-		UUID uid    = UUID.randomUUID();
-		String save = uid.toString() + "_" + file.getOriginalFilename() ;
-		//2. 파일업로드
-		File target = new File(resourcePath, save);
-		FileCopyUtils.copy(file.getBytes(), target);  //실제파일처리
-		return save;
+		try {
+			if (!Files.exists(root)) {  // 디렉트로 생성확인
+				Files.createDirectories(root);  // 중간경로까지 모두 생성
+			}		
+			//1. 파일이름중복안되게
+			UUID uid    = UUID.randomUUID();
+			String save = uid.toString() + "_" + file.getOriginalFilename() ;
+			//2. 파일업로드
+			File target = new File(resourcePath, save);
+			FileCopyUtils.copy(file.getBytes(), target);  //실제파일처리
+			return save;
+		} catch (IOException e) {
+			throw new RuntimeException("파일 업로드 실패", e);
+		}
 	}
 }

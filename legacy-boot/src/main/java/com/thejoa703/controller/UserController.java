@@ -182,7 +182,7 @@ public class UserController {
 		if(requirePasswordCheck) {
 			if(dto.getPassword() == null ||  dto.getPassword().isEmpty()) {
 				rttr.addFlashAttribute("errorMessage" , "회원탈퇴 실패: 비밀번호를 입력해주세요");
-				return "redirect:/legacy//users/delete";
+				return "redirect:/legacy/users/delete";
 			} 
 			if( !userService.matchesPassword(email, provider,  dto.getPassword() )) {
 				rttr.addFlashAttribute("errorMessage" , "회원탈퇴 실패: 비밀번호가 일치하지 않습니다.");
