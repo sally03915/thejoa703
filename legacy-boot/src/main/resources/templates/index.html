@@ -10,7 +10,7 @@
 <body>
 	<div layout:fragment="content">
 		<!-- 캐로셀 -->
-		<!-- 캐로셀 -->
+		<!-- 캐로셀 -->ss
 		<div id="visual"> 
 			<!-- Carousel -->
 			<div id="demo" class="carousel slide" data-bs-ride="carousel"> 
@@ -54,8 +54,8 @@
 			<div class="row">
 				<div class="col-sm-4  mb-4"   th:each="dto, stat : ${imglist}"  th:if="${stat.index < 3}">
 					<div class="gallery-item">
-					    <a th:href="@{/legacy/legacy/board/detail(id=${dto.id})}"  >
-						<img  th:src="@{'/upload/' + ${dto.bfile}}"  
+					    <a th:href="@{/legacy/board/detail(id=${dto.id})}"  >
+						<img  th:src="@{'/legacy/upload/' + ${dto.bfile}}"  
 							  th:alt="${dto.btitle}"  
 							  class="img-fluid  rounded-circle  img-thumbnail  d-block mx-auto"
 							  data-bs-toggle="tooltip" th:attr="title=${dto.bcontent}"
@@ -169,7 +169,7 @@
 						//#2. 페이징처리
 						function loadPage(keyword, pageNo){
 							$.ajax({
-								url:"/board/search" , 
+								url:"/legacy/board/search" , 
 								type:"GET" , 
 								data: {keyword : keyword , pageNo : pageNo} , 
 								success:function(res){
