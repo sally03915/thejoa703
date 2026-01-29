@@ -34,7 +34,7 @@ public class Sboard2Controller {
 	public String list(Model model , @RequestParam(value="pageNo" , defaultValue="1")  int pageNo) {
 		model.addAttribute("paging" , new UtilPaging( service.selectTotalCnt()  , pageNo));  // 화면용계산 이전-1,2,3-다음
 		model.addAttribute("list", service.select10(pageNo));  //처리- 게시글10개 가져오기
-		return "/legacy/board/list"; // 화면
+		return "legacy/board/list"; // 화면
 	}
 	
 	//http://localhost:8484/boot001/board/search?pageNo=1&keyword=t
@@ -80,7 +80,7 @@ public class Sboard2Controller {
 	@GetMapping("/edit")
 	public String edit_get(int id , Model model) {
 		model.addAttribute("dto", service.selectUpdateForm(id));   
-		return "/legacy/board/edit";  
+		return "legacy/board/edit";  
 	}	
 	//    /board/edit   (수정기능)
 	@PostMapping("/edit") 
