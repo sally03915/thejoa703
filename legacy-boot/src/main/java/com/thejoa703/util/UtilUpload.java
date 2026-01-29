@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+import java.nio.file.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -19,8 +20,8 @@ public class UtilUpload  {
 	public String fileUpload(  MultipartFile file) throws IOException {
 		
 		try {
-			if (!file.exists(root)) {  // 디렉트로 생성확인
-				file.createDirectories(root);  // 중간경로까지 모두 생성
+			if (!Files.exists(root)) {  // 디렉트로 생성확인
+				Files.createDirectories(root);  // 중간경로까지 모두 생성
 			}		
 			//1. 파일이름중복안되게
 			UUID uid    = UUID.randomUUID();
