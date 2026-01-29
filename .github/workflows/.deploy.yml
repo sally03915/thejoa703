@@ -268,7 +268,7 @@ jobs:
           target: "/home/ubuntu/legacy-boot/"
           # ⬆️ target을 디렉토리로 지정 → EC2에 /home/ubuntu/legacy-boot/.env 파일 생성
 
-      # 9. pm2로 실행
+      # 9. pm2로 실행  
       - name: Run Legacy Boot on EC2 with pm2
         uses: appleboy/ssh-action@v0.1.7
         with:
