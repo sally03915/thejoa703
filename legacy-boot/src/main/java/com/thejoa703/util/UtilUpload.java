@@ -2,36 +2,41 @@ package com.thejoa703.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
-import java.nio.file.*;
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class UtilUpload  { 
-	@Value("${resource.path}") private String resourcePath; //    C:/upload
-    // org.springframework.beans.factory.annotation.Value
-	
-    private final Path root = Paths.get(resourcePath);  // 프로젝트 실행위치 기준으로 uploads 폴더 생성
+    @Value("${resource.path}") 
+    private String resourcePath; 
 
-	public String fileUpload(  MultipartFile file) throws IOException {
-		
-		try {
-			if (!Files.exists(root)) {  // 디렉트로 생성확인
-				Files.createDirectories(root);  // 중간경로까지 모두 생성
-			}		
-			//1. 파일이름중복안되게
-			UUID uid    = UUID.randomUUID();
-			String save = uid.toString() + "_" + file.getOriginalFilename() ;
-			//2. 파일업로드
-			File target = new File(resourcePath, save);
-			FileCopyUtils.copy(file.getBytes(), target);  //실제파일처리
-			return save;
-		} catch (IOException e) {
-			throw new RuntimeException("파일 업로드 실패", e);
-		}
-	}
+    private Path root;
+
+    @PostConstruct
+    public void init() {
+        root = Paths.get(resourcePath);
+        try {
+            if (!Files.exists(root)) {
+                Files.createDirectories(root);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("업로드 디렉토리 생성 실패", e);
+        }
+    }
+
+    public String fileUpload(MultipartFile file) throws IOException {
+        UUID uid = UUID.randomUUID();
+        String save = uid.toString() + "_" + file.getOriginalFilename();
+        File target = new File(resourcePath, save);
+        file.transferTo(target); // 대용량 파일에 더 안전
+        return save;
+    }
 }
