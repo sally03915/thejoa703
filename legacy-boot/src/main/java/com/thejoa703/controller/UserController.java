@@ -69,7 +69,7 @@ public class UserController {
 	@GetMapping("/fail")
 	public String loginFail(Model model) {
 		model.addAttribute("errorMessage" , "로그인 실패: 아이디 또는 비밀번호를 확인하세요.");
-		return "/legacy/users/login";
+		return "legacy/users/login";
 	}
 	//////////////////////////////////////////////////////////
 	/* 마이페이지 */	
@@ -101,7 +101,7 @@ public class UserController {
 			dto.setEmail(email);  dto.setProvider(provider);
 		} 
 		model.addAttribute("dto" , dto);
-		return "/legacy/users/mypage"; 
+		return "legacy/users/mypage"; 
 	}
 
 	//////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ public class UserController {
 		} 
 		AppUserDto dto = userService.selectEmail(email, provider);
 		model.addAttribute("dto" , dto); 
-		return "/legacy/users/update"; 
+		return "legacy/users/update"; 
 	} 
 	
 	@PreAuthorize("isAuthenticated()")
