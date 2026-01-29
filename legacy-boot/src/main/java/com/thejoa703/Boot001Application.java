@@ -11,7 +11,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class Boot001Application { 
 	public static void main(String[] args) {
         //Dotenv dotenv = Dotenv.load();
-		Dotenv dotenv = Dotenv.configure() .directory("/home/ubuntu/legacy-boot") .load();
+		Dotenv dotenv = Dotenv.configure() .directory("/home/ubuntu/legacy-boot").load();
 		dotenv.entries().forEach(entry ->
             System.setProperty(entry.getKey(), entry.getValue())
         );
