@@ -286,4 +286,8 @@ jobs:
 
             JAR_FILE=/home/ubuntu/legacy-boot/target/boot001-0.0.1-SNAPSHOT.jar
 
-            pm2 start "java -Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=Asia/Seoul -jar $JAR_FILE" --name legacy-boot
+            pm2 start java --name legacy-boot -- \
+              -Doracle.jdbc.timezoneAsRegion=false \
+              -Duser.timezone=Asia/Seoul \
+              -jar /home/ubuntu/legacy-boot/target/boot001-0.0.1-SNAPSHOT.jar
+
