@@ -221,7 +221,7 @@ jobs:
         run: mvn clean package -DskipTests
         working-directory: legacy-boot
 
-      # 4. Secrets에서 .env 복원 (CI 러너 루트에 파일 생성)
+      # 4. Secrets에서 .env 복원 (CI 러너 루트에 파일 생성)   
       - name: Restore .env from Secrets
         run: |
           echo "${{ secrets.LEGACY_ENV }}" > .env
