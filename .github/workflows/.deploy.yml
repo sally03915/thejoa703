@@ -257,7 +257,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: rm -rf /home/ubuntu/legacy-boot/.env
 
-      # 8. .env 파일 복사 (파일로 확실히 반영)
+      # 8. .env 파일 복사 (파일로 확실히 반영)   
       - name: Copy Legacy Boot .env to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
