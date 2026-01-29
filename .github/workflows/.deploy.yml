@@ -286,8 +286,5 @@ jobs:
 
             JAR_FILE=$(ls target/*.jar | head -n 1)
 
-            pm2 start --interpreter none --name legacy-boot -- \
-              java -Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=Asia/Seoul -jar $JAR_FILE
-
-
-
+            pm2 start java --name legacy-boot -- \
+              -Doracle.jdbc.timezoneAsRegion=false -Duser.timezone=Asia/Seoul -jar $JAR_FILE
