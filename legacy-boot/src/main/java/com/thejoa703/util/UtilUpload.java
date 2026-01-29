@@ -13,11 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class UtilUpload  { 
 	@Value("${resource.path}") private String resourcePath; //    C:/upload
     // org.springframework.beans.factory.annotation.Value
+	
+    private final Path root = Paths.get("uploads");  // 프로젝트 실행위치 기준으로 uploads 폴더 생성
 
 	public String fileUpload(  MultipartFile file) throws IOException {
+		
 		try {
-			if (!Files.exists(root)) {  // 디렉트로 생성확인
-				Files.createDirectories(root);  // 중간경로까지 모두 생성
+			if (!file.exists(root)) {  // 디렉트로 생성확인
+				file.createDirectories(root);  // 중간경로까지 모두 생성
 			}		
 			//1. 파일이름중복안되게
 			UUID uid    = UUID.randomUUID();
