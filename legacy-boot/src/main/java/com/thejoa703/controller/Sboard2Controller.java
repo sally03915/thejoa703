@@ -19,7 +19,7 @@ import com.thejoa703.service.Sboard2Service;
 import com.thejoa703.util.UtilPaging;
 
 @Controller
-@RequestMapping("/legacy/board")   // 공통 prefix
+@RequestMapping("/board")   // 공통 prefix
 public class Sboard2Controller {
 	
 	@Autowired private Sboard2Service service;
@@ -34,7 +34,7 @@ public class Sboard2Controller {
 	public String list(Model model , @RequestParam(value="pageNo" , defaultValue="1")  int pageNo) {
 		model.addAttribute("paging" , new UtilPaging( service.selectTotalCnt()  , pageNo));  // 화면용계산 이전-1,2,3-다음
 		model.addAttribute("list", service.select10(pageNo));  //처리- 게시글10개 가져오기
-		return "legacy/board/list"; // 화면
+		return "board/list"; // 화면
 	}
 	
 	//http://localhost:8484/boot001/board/search?pageNo=1&keyword=t
@@ -57,7 +57,7 @@ public class Sboard2Controller {
 	
 	 
 	//    /board/write (글쓰기 폼)
-	@GetMapping("/write") public String write_get() {  return "legacy/board/write";}
+	@GetMapping("/write") public String write_get() {  return "board/write";}
 	
 	//    /board/write (글쓰기 기능)
 	@PostMapping("/write") public String write_post(
@@ -65,7 +65,7 @@ public class Sboard2Controller {
 		String result ="글쓰기 실패";
 		if(service.insert(file, dto) > 0) { result="글쓰기 성공!";}
 		rttr.addFlashAttribute("success" , result);
-		return "redirect:/legacy/board/list";
+		return "redirect:/board/list";
 	} 
 	
 	
@@ -74,13 +74,13 @@ public class Sboard2Controller {
 	@GetMapping("/detail")
 	public String detail(int id , Model model) {
 		model.addAttribute("dto", service.select(id));  
-		return "legacy/board/detail";  
+		return "board/detail";  
 	}
 	//    /board/edit   (수정폼)
 	@GetMapping("/edit")
 	public String edit_get(int id , Model model) {
 		model.addAttribute("dto", service.selectUpdateForm(id));   
-		return "legacy/board/edit";  
+		return "board/edit";  
 	}	
 	//    /board/edit   (수정기능)
 	@PostMapping("/edit") 
@@ -89,12 +89,12 @@ public class Sboard2Controller {
 		String result ="글수정 실패";
 		if(service.update(file, dto) > 0) { result="글수정 성공!";}
 		rttr.addFlashAttribute("success" , result);
-		return "redirect:/legacy/board/detail?id=" + dto.getId();
+		return "redirect:/board/detail?id=" + dto.getId();
 	} 	
 	//    /board/delete (삭제폼)
 	@GetMapping("/delete")
 	public String delete_get( ) {  
-		return "legacy/board/delete";  
+		return "board/delete";  
 	}
 	//    /board/delete (삭제기능) 
 	@PostMapping("/delete") 
@@ -102,6 +102,6 @@ public class Sboard2Controller {
 		String result ="글삭제 실패";
 		if(service.delete(dto) > 0) { result="글삭제 성공!";}
 		rttr.addFlashAttribute("success" , result);
-		return "redirect:/legacy/board/list";
+		return "redirect:/board/list";
 	} 
 }

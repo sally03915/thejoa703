@@ -14,7 +14,7 @@ public class MainController {
 	//내가 필요로하는 서비스들- index구성 (서비스들)
 	@Autowired private Sboard2Service service;
 	
-	@GetMapping("/legacy")
+	@GetMapping("/")
 	public String list(Model model , @RequestParam(value="pageNo" , defaultValue="1")  int pageNo) {
 		model.addAttribute("paging" , new UtilPaging( service.selectTotalCnt()  , pageNo));  // 화면용계산 이전-1,2,3-다음
 		model.addAttribute("list"   , service.select10(pageNo));  //처리- 게시글10개 가져오기 

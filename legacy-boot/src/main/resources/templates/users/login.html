@@ -20,7 +20,7 @@
     <h2 class="mb-4">로그인</h2> 
     <!-- 로그인 폼은 익명 사용자만 --> 
     <div sec:authorize="isAnonymous()">
-        <form  th:action="@{/legacy/users/loginProc}"   method="post"  class="needs-validation"   novalidate>
+        <form  th:action="@{/users/loginProc}"   method="post"  class="needs-validation"   novalidate>
             <div class="mb-3">
                 <label for="username" class="form-label">이메일</label>
                 <input type="text" id="username" name="username" class="form-control" required>
@@ -36,23 +36,23 @@
     <!-- 로그인한 유저 --> 
     <div sec:authorize="isAuthenticated()">
     	<p class="alert alert-info">이미 로그인한 상태입니다.</p>
-    	<a th:href="@{/legacy/users/mypage}"  class="btn btn-success">마이페이지로 이동</a>
+    	<a th:href="@{/users/mypage}"  class="btn btn-success">마이페이지로 이동</a>
     </div> 
  
 	<div class="container my-5 text-center">
 		<div class="row">
 			<div class="col-sm-4">
-				<a th:href="@{/legacy/oauth2/authorization/kakao}">
+				<a th:href="@{/oauth2/authorization/kakao}">
 					<img src="/images/kakao.png" alt="kakao login">
 				</a>
 			</div>
 			<div class="col-sm-4">
-				<a th:href="@{/legacy/oauth2/authorization/naver}">
+				<a th:href="@{/oauth2/authorization/naver}">
 					<img src="/images/naver.png" alt="naver login">
 				</a>
 			</div>
 			<div class="col-sm-4">
-				<a  th:href="@{/legacy/oauth2/authorization/google}">
+				<a  th:href="@{/oauth2/authorization/google}">
 					<img src="/images/google.png" alt="google login">
 				</a>
 			</div>
