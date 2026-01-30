@@ -46,11 +46,15 @@ public class SecurityConfig {
 		    	.permitAll()
 		    )
 		    .oauth2Login(oauth2 -> oauth2
-			     .loginPage("/legacy/users/login")  // ← 로그인폼 통합
-			     .defaultSuccessUrl("/legacy/users/mypage" , true) // ← 로그인성공시 경로
-			     .redirectionEndpoint(endpoint -> endpoint.baseUri("/legacy/login/oauth2/code/*"))  //################
-			     .userInfoEndpoint(userInfo -> userInfo.userService(oauth2IUserService))
+		    	    .loginPage("/legacy/users/login")  // 로그인 폼
+		    	    .defaultSuccessUrl("/legacy/users/mypage", true) // 로그인 성공시 경로
+		    	    .authorizationEndpoint(endpoint -> 
+		    	        endpoint.baseUri("/legacy/oauth2/authorization")) // ← 소셜 로그인 진입 경로 변경
+		    	    .redirectionEndpoint(endpoint -> 
+		    	        endpoint.baseUri("/legacy/login/oauth2/code/*"))  // ← 콜백 경로 변경
+		    	    .userInfoEndpoint(userInfo -> userInfo.userService(oauth2IUserService))
 		    )
+
 		     /* 4. csrf 예외처리 */
 		    .csrf( csrf  -> csrf.ignoringAntMatchers("/legacy/users/join" , "/legacy/users/update" , "/legacy/users/delete"));
 		
