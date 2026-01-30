@@ -35,7 +35,7 @@
 	  </div> 
 	  <div class="mb-3 mt-3">
 	    <label for="title" class="form-label">IMG:</label>
-	    <img  th:src="@{'/legacy/uploads/'+${dto.bfile}}" class="img-fluid  rounded  border mb-3"  alt="" />
+	    <img  th:src="@{'/uploads/'+${dto.bfile}}" class="img-fluid  rounded  border mb-3"  alt="" />
 	  </div> 
 		<div class="mb-3">
 			<a th:href="@{/board/edit(id=${dto.id})}" class="btn btn-success form-control">글수정</a>

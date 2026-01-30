@@ -26,7 +26,7 @@
 			  <div class="carousel-inner">
 			    <div    th:each="dto, stat : ${imglist}"  
 			    		th:class="'carousel-item' + ( ${stat.index==0} ?' active' : '')">
-			      <img  th:src="@{'/legacy/uploads/' + ${dto.bfile}}" th:alt="${dto.btitle}"  style="height:300px; object-fit:cover;"
+			      <img  th:src="@{'/uploads/' + ${dto.bfile}}" th:alt="${dto.btitle}"  style="height:300px; object-fit:cover;"
 			      	    class="d-block w-100">
 						<!-- 제목과 링크 추가 -->
 						<div class="carousel-caption d-none d-md-block">
@@ -55,7 +55,7 @@
 				<div class="col-sm-4  mb-4"   th:each="dto, stat : ${imglist}"  th:if="${stat.index < 3}">
 					<div class="gallery-item">
 					    <a th:href="@{/legacy/board/detail(id=${dto.id})}"  >
-						<img  th:src="@{'/legacy/uploads/' + ${dto.bfile}}"  
+						<img  th:src="@{'/uploads/' + ${dto.bfile}}"  
 							  th:alt="${dto.btitle}"  
 							  class="img-fluid  rounded-circle  img-thumbnail  d-block mx-auto"
 							  data-bs-toggle="tooltip" th:attr="title=${dto.bcontent}"
@@ -83,7 +83,7 @@
 			    <h3>GALLERY</h3>
 				<div class="col-sm-3" th:each="dto , stat : ${imglist}" th:if="${stat.index<8}" >
 				 <!-- 						 --> 
-				 	<img   th:src="@{'/legacy/uploads/' + ${dto.bfile}}" class="img-fluid img-thumbnail cursor-pointer" 
+				 	<img   th:src="@{'/uploads/' + ${dto.bfile}}" class="img-fluid img-thumbnail cursor-pointer" 
 				 		   data-bs-toggle="modal"   th:data-bs-target="'#myModal' + ${stat.index}"   /> 
 				 	<!-- The Modal -->
 					<div class="modal fade"    th:id="'myModal' + ${stat.index}">
@@ -98,7 +98,7 @@
 					
 					      <!-- Modal body -->
 					      <div class="modal-body">
-					       	<img   th:src="@{'/legacy/uploads/' + ${dto.bfile}}"  class="img-fluid"/>
+					       	<img   th:src="@{'/uploads/' + ${dto.bfile}}"  class="img-fluid"/>
 					      </div>
 					
 					      <!-- Modal footer -->
