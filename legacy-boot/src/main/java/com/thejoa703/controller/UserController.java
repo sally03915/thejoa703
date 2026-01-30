@@ -64,7 +64,7 @@ public class UserController {
 
 	/* 로그인 : 폼 , 성공, 실패 */
 	@GetMapping("/login")
-	public String loginForm() { return "legacy/users/login"; }
+	public String loginForm() { return "users/login"; }
 	
 	@GetMapping("/fail")
 	public String loginFail(Model model) {
