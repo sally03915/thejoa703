@@ -241,16 +241,17 @@ public class AuthController {
     // ✅ 로그아웃
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue("refreshToken") String refreshToken,
+    public ResponseEntity<Void> logout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                        HttpServletResponse response) {
-        var claims = jwtProvider.parse(refreshToken).getBody();
-        String userId = claims.getSubject();
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            var claims = jwtProvider.parse(refreshToken).getBody();
+            String userId = claims.getSubject();
+            tokenStore.deleteRefreshToken(userId);
+        }
 
-        tokenStore.deleteRefreshToken(userId);
- 
         ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("Strict")
                 .path("/")
                 .maxAge(0)
@@ -259,4 +260,5 @@ public class AuthController {
 
         return ResponseEntity.noContent().build();
     }
+
 }
