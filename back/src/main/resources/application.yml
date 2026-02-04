@@ -45,8 +45,8 @@ jwt:
   prefix: Bearer
 
 file:
-  upload-dir: uploads
-#  upload-dir: /home/ubuntu/app/back/build/libs/uploads
+#  upload-dir: uploads
+  upload-dir: /home/ubuntu/app/back/build/libs/uploads
 server:
   port: 8080
 
