@@ -64,5 +64,6 @@
     "setupFilesAfterEnv": [
       "<rootDir>/setupTests.js"
     ]
-  }
+  },
+  "proxy":"localhost:8484"
 }
