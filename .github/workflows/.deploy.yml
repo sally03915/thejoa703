@@ -216,7 +216,7 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      # 3. Maven 빌드
+      # 3. Maven 빌드  
       - name: Build Legacy Boot App
         run: mvn clean package -DskipTests
         working-directory: legacy-boot
